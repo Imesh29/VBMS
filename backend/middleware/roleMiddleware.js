@@ -1,4 +1,4 @@
-import { errorResponse } from "../utils/response";
+import { errorResponse } from "../utils/response.js";
 
 const authorize = (...allowedRoles) => {
   return (req, res, next) => {
