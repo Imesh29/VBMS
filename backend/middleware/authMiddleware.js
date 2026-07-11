@@ -1,4 +1,4 @@
-import { verifyToken } from "../utils/jwt";
+import { verifyToken } from "../utils/jwt.js";
 import { errorResponse } from "../utils/response.js";
 
 const authenticate = (req, res, next) => {

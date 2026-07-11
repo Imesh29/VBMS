@@ -1,5 +1,5 @@
-import authRepository from "../repositories/authRepository.js";
-import { hashPassword, comparePassword } from "../utilss/hash.js";
+import * as authRepository from "../repositories/authRepository.js";
+import { hashPassword, comparePassword } from "../utils/hash.js";
 import { generateToken } from "../utils/jwt.js";
 
 export const createError = (message, statusCode) => {
