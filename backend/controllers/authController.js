@@ -1,5 +1,5 @@
-import validationresult from "express-validator";
-import authService from "../services/authService.js";
+import { validationResult } from "express-validator";
+import * as authService from "../services/authService.js";
 
 import { successResponse, errorResponse } from "../utils/response.js";
 
