@@ -63,4 +63,14 @@ router.get(
   vehicleController.getAllVehicles,
 );
 
+// Create new vehicle
+
+router.post(
+  "/",
+  authenticate,
+  authorize("ADMIN"),
+  vehicleValidation,
+  vehicleController.createVehicle,
+);
+
 export default router;

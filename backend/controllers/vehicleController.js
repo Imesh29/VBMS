@@ -19,3 +19,21 @@ export const getAllVehicles = async (req, res, next) => {
     next(error);
   }
 };
+
+// create new vehicle
+
+export const createVehicle = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return errorResponse(res, 400, "Validation failed.", errors.array());
+    }
+
+    const vehicle = await vehicleService.createVehicle(req.body);
+
+    return successResponse(res, 201, "Vehicle created successfully.", vehicle);
+  } catch (error) {
+    next(error);
+  }
+};
