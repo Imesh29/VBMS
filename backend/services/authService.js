@@ -85,3 +85,13 @@ export const getUserProfile = async (userId) => {
     updatedAt: user.updated_at,
   };
 };
+
+export const logoutUser = async () => {
+  try {
+    const result = await authService.logoutUser();
+
+    return successResponse(res, 200, result.message, null);
+  } catch (error) {
+    next(error);
+  }
+};
