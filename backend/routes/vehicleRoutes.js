@@ -73,4 +73,14 @@ router.post(
   vehicleController.createVehicle,
 );
 
+// Get vehicle by id
+
+router.get(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  idValidation,
+  vehicleController.getVehicleById,
+);
+
 export default router;

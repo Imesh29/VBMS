@@ -82,3 +82,28 @@ export const createVehicle = async (vehicle) => {
 
   return result.rows[0];
 };
+
+// Get vehicle by ID
+
+export const findVehicleById = async (id) => {
+  const query = `
+    SELECT
+      id,
+      vehicle_number,
+      vehicle_name,
+      vehicle_type,
+      capacity,
+      fuel_type,
+      driver_name,
+      last_service_date,
+      status,
+      created_at,
+      updated_at
+    FROM vehicles
+    WHERE id = $1;
+  `;
+
+  const result = await pool.query(query, [id]);
+
+  return result.rows[0] || null;
+};

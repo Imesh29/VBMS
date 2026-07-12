@@ -26,3 +26,15 @@ export const createVehicle = async (vehicleData) => {
 
   return await vehicleRepository.createVehicle(vehicleData);
 };
+
+// Get vehicle by id
+
+export const getVehicleById = async (id) => {
+  const vehicle = await vehicleRepository.findVehicleById(id);
+
+  if (!vehicle) {
+    throw createError("Vehicle not found.", 404);
+  }
+
+  return vehicle;
+};

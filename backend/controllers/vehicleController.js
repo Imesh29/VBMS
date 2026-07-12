@@ -37,3 +37,22 @@ export const createVehicle = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get vehicle by id
+
+export const getVehicleById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const vehicle = await vehicleService.getVehicleById(id);
+
+    return successResponse(
+      res,
+      200,
+      "Vehicle retrieved successfully.",
+      vehicle,
+    );
+  } catch (error) {
+    next(error);
+  }
+};

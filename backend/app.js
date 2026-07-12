@@ -21,5 +21,6 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/vehicles", vehicleRoutes);
 app.post("/api/vehicles", vehicleRoutes);
+app.get("/api/vehicles/:id", vehicleRoutes);
 
 export default app;
