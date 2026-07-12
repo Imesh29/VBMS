@@ -67,6 +67,9 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
-export const logout = async (req, res) => {
-  return successResponse(res, 200, "Logout successful");
+export const logout = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
 };
