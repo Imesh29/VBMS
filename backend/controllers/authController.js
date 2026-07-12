@@ -69,6 +69,9 @@ export const getProfile = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
+    const result = await authService.logoutUser();
+
+    return successResponse(res, 200, result.message, null);
   } catch (error) {
     next(error);
   }
