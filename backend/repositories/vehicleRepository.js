@@ -178,3 +178,17 @@ export const updateVehicle = async (id, vehicle) => {
 
   return result.rows[0] || null;
 };
+
+// delete vehicle
+
+export const deleteVehicle = async (id) => {
+  const query = `
+    DELETE FROM vehicles
+    WHERE id = $1
+    RETURNING id;
+  `;
+
+  const result = await pool.query(query, [id]);
+
+  return result.rows[0] || null;
+};

@@ -103,4 +103,14 @@ router.put(
   vehicleController.updateVehicle,
 );
 
+// Delete vehicle
+
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  idValidation,
+  vehicleController.deleteVehicle,
+);
+
 export default router;

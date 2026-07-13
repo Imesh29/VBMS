@@ -66,3 +66,19 @@ export const updateVehicle = async (id, vehicleData) => {
 
   return await vehicleRepository.updateVehicle(id, vehicleData);
 };
+
+// Delete vehicle
+
+export const deleteVehicle = async (id) => {
+  const existingVehicle = await vehicleRepository.findVehicleById(id);
+
+  if (!existingVehicle) {
+    throw createError("Vehicle not found.", 404);
+  }
+
+  await vehicleRepository.deleteVehicle(id);
+
+  return {
+    message: "Vehicle deleted successfully.",
+  };
+};

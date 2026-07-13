@@ -93,3 +93,17 @@ export const updateVehicle = async (req, res, next) => {
     next(error);
   }
 };
+
+// delete vehicle
+
+export const deleteVehicle = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const result = await vehicleService.deleteVehicle(id);
+
+    return successResponse(res, 200, result.message);
+  } catch (error) {
+    next(error);
+  }
+};
