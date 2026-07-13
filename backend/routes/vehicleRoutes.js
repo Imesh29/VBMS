@@ -92,4 +92,15 @@ router.get(
   vehicleController.getVehicleById,
 );
 
+// Update vehicle
+
+router.put(
+  "/:id",
+  authenticate,
+  authorize("ADMIN"),
+  idValidation,
+  vehicleValidation,
+  vehicleController.updateVehicle,
+);
+
 export default router;

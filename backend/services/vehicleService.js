@@ -44,3 +44,25 @@ export const getVehicleById = async (id) => {
 export const getAvailableVehicles = async () => {
   return await vehicleRepository.findAvailableVehicles();
 };
+
+// Update vehicle
+
+export const updateVehicle = async (id, vehicleData) => {
+  // Check vehicle exists
+  const existingVehicle = await vehicleRepository.findVehicleById(id);
+
+  if (!existingVehicle) {
+    throw createError("Vehicle not found.", 404);
+  }
+
+  // Check duplicate vehicle number
+  const duplicateVehicle = await vehicleRepository.findVehicleByNumber(
+    vehicleData.vehicleNumber,
+  );
+
+  if (duplicateVehicle && duplicateVehicle.id !== id) {
+    throw createError("Vehicle number already exists.", 409);
+  }
+
+  return await vehicleRepository.updateVehicle(id, vehicleData);
+};

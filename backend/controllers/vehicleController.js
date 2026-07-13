@@ -73,3 +73,23 @@ export const getAvailableVehicles = async (req, res, next) => {
     next(error);
   }
 };
+
+// update vehicle
+
+export const updateVehicle = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return errorResponse(res, 400, "Validation failed.", errors.array());
+    }
+
+    const { id } = req.params;
+
+    const vehicle = await vehicleService.updateVehicle(id, req.body);
+
+    return successResponse(res, 200, "Vehicle updated successfully.", vehicle);
+  } catch (error) {
+    next(error);
+  }
+};

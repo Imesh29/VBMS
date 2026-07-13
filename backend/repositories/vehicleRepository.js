@@ -131,3 +131,50 @@ export const findAvailableVehicles = async () => {
 
   return result.rows;
 };
+
+// Update vehicle
+
+export const updateVehicle = async (id, vehicle) => {
+  const query = `
+    UPDATE vehicles
+    SET
+      vehicle_number = $1,
+      vehicle_name = $2,
+      vehicle_type = $3,
+      capacity = $4,
+      fuel_type = $5,
+      driver_name = $6,
+      last_service_date = $7,
+      status = $8,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $9
+    RETURNING
+      id,
+      vehicle_number,
+      vehicle_name,
+      vehicle_type,
+      capacity,
+      fuel_type,
+      driver_name,
+      last_service_date,
+      status,
+      created_at,
+      updated_at;
+  `;
+
+  const values = [
+    vehicle.vehicleNumber,
+    vehicle.vehicleName,
+    vehicle.vehicleType,
+    vehicle.capacity,
+    vehicle.fuelType,
+    vehicle.driverName,
+    vehicle.lastServiceDate,
+    vehicle.status,
+    id,
+  ];
+
+  const result = await pool.query(query, values);
+
+  return result.rows[0] || null;
+};
