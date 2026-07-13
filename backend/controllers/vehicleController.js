@@ -56,3 +56,20 @@ export const getVehicleById = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get available vehicles
+
+export const getAvailableVehicles = async (req, res, next) => {
+  try {
+    const vehicles = await vehicleService.getAvailableVehicles();
+
+    return successResponse(
+      res,
+      200,
+      "Available vehicles retrieved successfully.",
+      vehicles,
+    );
+  } catch (error) {
+    next(error);
+  }
+};

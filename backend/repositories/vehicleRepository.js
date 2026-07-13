@@ -107,3 +107,27 @@ export const findVehicleById = async (id) => {
 
   return result.rows[0] || null;
 };
+
+// Get Available Vehicles
+
+export const findAvailableVehicles = async () => {
+  const query = `
+    SELECT
+      id,
+      vehicle_number,
+      vehicle_name,
+      vehicle_type,
+      capacity,
+      fuel_type,
+      driver_name,
+      last_service_date,
+      status
+    FROM vehicles
+    WHERE status = 'AVAILABLE'
+    ORDER BY vehicle_name;
+  `;
+
+  const result = await pool.query(query);
+
+  return result.rows;
+};

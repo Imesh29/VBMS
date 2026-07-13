@@ -38,3 +38,9 @@ export const getVehicleById = async (id) => {
 
   return vehicle;
 };
+
+// Get available vehicles
+
+export const getAvailableVehicles = async () => {
+  return await vehicleRepository.findAvailableVehicles();
+};

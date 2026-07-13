@@ -73,6 +73,15 @@ router.post(
   vehicleController.createVehicle,
 );
 
+// Get available vehicles
+
+router.get(
+  "/available",
+  authenticate,
+  authorize("USER", "DEAN", "ADMIN"),
+  vehicleController.getAvailableVehicles,
+);
+
 // Get vehicle by id
 
 router.get(
