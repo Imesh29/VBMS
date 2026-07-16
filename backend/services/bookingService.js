@@ -51,3 +51,21 @@ export const createBooking = async (userId, bookingData) => {
 
   return await bookingRepository.createBooking(booking);
 };
+
+/**
+ * Get Booking By Id
+ */
+export const getBookingById = async (bookingId, userId) => {
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw createError("Booking not found.", 404);
+  }
+
+  // User can only view own booking
+  if (booking.user_id !== userId) {
+    throw createError("You are not authorized to access this booking.", 403);
+  }
+
+  return booking;
+};

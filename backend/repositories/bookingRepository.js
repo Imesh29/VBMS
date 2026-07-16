@@ -52,3 +52,17 @@ export const createBooking = async (booking) => {
 
   return result.rows[0];
 };
+
+// Find booking by ID
+
+export const findBookingById = async (id) => {
+  const query = `
+        SELECT *
+        FROM bookings
+        WHERE id = $1;
+    `;
+
+  const result = await pool.query(query, [id]);
+
+  return result.rows[0] || null;
+};

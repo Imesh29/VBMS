@@ -70,4 +70,17 @@ router.post(
   bookingController.createBooking,
 );
 
+/**
+ * GET /api/bookings/:id
+ * Get Booking By ID
+ * USER only
+ */
+router.get(
+  "/:id",
+  authenticate,
+  authorize("USER"),
+  bookingIdValidation,
+  bookingController.getBookingById,
+);
+
 export default router;

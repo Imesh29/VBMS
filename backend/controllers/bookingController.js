@@ -20,3 +20,24 @@ export const createBooking = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get Booking By Id
+ */
+export const getBookingById = async (req, res, next) => {
+  try {
+    const booking = await bookingService.getBookingById(
+      req.params.id,
+      req.user.id,
+    );
+
+    return successResponse(
+      res,
+      200,
+      "Booking retrieved successfully.",
+      booking,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
