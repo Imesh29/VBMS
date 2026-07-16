@@ -1,5 +1,5 @@
 import * as vehicleRepository from "../repositories/vehicleRepository.js";
-import createError from "../utils/creatError.js";
+import createError from "../utils/createError.js";
 
 // Get all vehicles
 
