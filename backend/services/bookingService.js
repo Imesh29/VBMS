@@ -23,6 +23,19 @@ export const createBooking = async (userId, bookingData) => {
     throw createError("Vehicle not found.", 404);
   }
 
+  const conflictingBookings = await bookingRepository.findConflictingBookings(
+    bookingData.vehicleId,
+    bookingData.departureDate,
+    bookingData.returnDate,
+  );
+
+  if (conflictingBookings.length > 0) {
+    throw createError(
+      "This vehicle is already booked for the selected date and time.",
+      409,
+    );
+  }
+
   // Check vehicle availability
   if (vehicle.status !== "AVAILABLE") {
     throw createError("Vehicle is not available for booking.", 409);
@@ -101,6 +114,19 @@ export const updateBooking = async (bookingId, userId, bookingData) => {
 
   if (!vehicle) {
     throw createError("Vehicle not found.", 404);
+  }
+
+  const conflictingBookings = await bookingRepository.findConflictingBookings(
+    bookingData.vehicleId,
+    bookingData.departureDate,
+    bookingData.returnDate,
+  );
+
+  if (conflictingBookings.length > 0) {
+    throw createError(
+      "This vehicle is already booked for the selected date and time.",
+      409,
+    );
   }
 
   if (vehicle.status !== "AVAILABLE") {

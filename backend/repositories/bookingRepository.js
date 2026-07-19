@@ -1,5 +1,50 @@
 import { pool } from "../config/db.js";
 
+/**
+ * Check for conflicting bookings
+ * with another booking for the same vehicle.
+ */
+export const findConflictingBookings = async (
+  vehicleId,
+  departureDate,
+  returnDate,
+  excludeBookingId = null,
+) => {
+  let query = `
+        SELECT
+            id,
+            booking_reference,
+            departure_date,
+            return_date,
+            status
+        FROM bookings
+        WHERE vehicle_id = $1
+          AND status IN (
+              'PENDING',
+              'APPROVED',
+              'CONFIRMED'
+          )
+          AND (
+                departure_date < $3
+            AND return_date > $2
+          )
+    `;
+
+  const values = [vehicleId, departureDate, returnDate];
+
+  // Ignore the current booking when updating
+  if (excludeBookingId) {
+    query += " AND id <> $4";
+    values.push(excludeBookingId);
+  }
+
+  query += " ORDER BY departure_date;";
+
+  const result = await pool.query(query, values);
+
+  return result.rows;
+};
+
 // Create a new booking
 
 export const createBooking = async (booking) => {
