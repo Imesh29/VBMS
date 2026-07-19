@@ -83,3 +83,20 @@ export const updateBooking = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Delete Booking
+ * DELETE /api/bookings/:id
+ */
+export const deleteBooking = async (req, res, next) => {
+  try {
+    const result = await bookingService.deleteBooking(
+      req.params.id,
+      req.user.id,
+    );
+
+    return successResponse(res, 200, result.message);
+  } catch (error) {
+    next(error);
+  }
+};

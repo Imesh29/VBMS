@@ -106,4 +106,16 @@ router.put(
   bookingController.updateBooking,
 );
 
+/**
+ * Delete Booking
+ * USER only
+ */
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("USER"),
+  bookingIdValidation,
+  bookingController.deleteBooking,
+);
+
 export default router;

@@ -116,3 +116,28 @@ export const updateBooking = async (bookingId, userId, bookingData) => {
 
   return await bookingRepository.updateBooking(bookingId, bookingData);
 };
+
+/**
+ * Delete Booking
+ */
+export const deleteBooking = async (bookingId, userId) => {
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw createError("Booking not found.", 404);
+  }
+
+  if (booking.user_id !== userId) {
+    throw createError("You are not authorized to delete this booking.", 403);
+  }
+
+  if (booking.status !== "PENDING") {
+    throw createError("Only pending bookings can be deleted.", 409);
+  }
+
+  await bookingRepository.deleteBooking(bookingId);
+
+  return {
+    message: "Booking deleted successfully.",
+  };
+};

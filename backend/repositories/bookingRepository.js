@@ -154,3 +154,18 @@ export const updateBooking = async (id, booking) => {
 
   return result.rows[0] || null;
 };
+
+/**
+ * Delete booking
+ */
+export const deleteBooking = async (id) => {
+  const query = `
+        DELETE FROM bookings
+        WHERE id = $1
+        RETURNING id;
+    `;
+
+  const result = await pool.query(query, [id]);
+
+  return result.rows[0] || null;
+};
