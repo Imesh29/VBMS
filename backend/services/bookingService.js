@@ -76,3 +76,43 @@ export const getBookingById = async (bookingId, userId) => {
 export const getMyBookings = async (userId) => {
   return await bookingRepository.findBookingsByUser(userId);
 };
+
+/**
+ * Update Booking
+ */
+export const updateBooking = async (bookingId, userId, bookingData) => {
+  const booking = await bookingRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw createError("Booking not found.", 404);
+  }
+
+  if (booking.user_id !== userId) {
+    throw createError("You are not authorized to update this booking.", 403);
+  }
+
+  if (booking.status !== "PENDING") {
+    throw createError("Only pending bookings can be updated.", 409);
+  }
+
+  const vehicle = await vehicleRepository.findVehicleById(
+    bookingData.vehicleId,
+  );
+
+  if (!vehicle) {
+    throw createError("Vehicle not found.", 404);
+  }
+
+  if (vehicle.status !== "AVAILABLE") {
+    throw createError("Vehicle is not available.", 409);
+  }
+
+  const departureDate = new Date(bookingData.departureDate);
+  const returnDate = new Date(bookingData.returnDate);
+
+  if (departureDate >= returnDate) {
+    throw createError("Return date must be later than departure date.", 400);
+  }
+
+  return await bookingRepository.updateBooking(bookingId, bookingData);
+};

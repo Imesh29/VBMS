@@ -59,3 +59,27 @@ export const getMyBookings = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Update Booking
+ * PUT /api/bookings/:id
+ */
+export const updateBooking = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return errorResponse(res, 400, "Validation failed.", errors.array());
+    }
+
+    const booking = await bookingService.updateBooking(
+      req.params.id,
+      req.user.id,
+      req.body,
+    );
+
+    return successResponse(res, 200, "Booking updated successfully.", booking);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -93,4 +93,17 @@ router.get(
   bookingController.getBookingById,
 );
 
+/**
+ * Update Booking
+ * USER only
+ */
+router.put(
+  "/:id",
+  authenticate,
+  authorize("USER"),
+  bookingIdValidation,
+  bookingValidation,
+  bookingController.updateBooking,
+);
+
 export default router;

@@ -116,3 +116,41 @@ export const findBookingsByUser = async (userId) => {
 
   return result.rows;
 };
+
+/**
+ * Update booking
+ */
+export const updateBooking = async (id, booking) => {
+  const query = `
+        UPDATE bookings
+        SET
+
+            vehicle_id = $1,
+            purpose = $2,
+            destination = $3,
+            departure_date = $4,
+            return_date = $5,
+            passenger_count = $6,
+            remarks = $7,
+            updated_at = CURRENT_TIMESTAMP
+
+        WHERE id = $8
+
+        RETURNING *;
+    `;
+
+  const values = [
+    booking.vehicleId,
+    booking.purpose,
+    booking.destination,
+    booking.departureDate,
+    booking.returnDate,
+    booking.passengerCount,
+    booking.remarks,
+    id,
+  ];
+
+  const result = await pool.query(query, values);
+
+  return result.rows[0] || null;
+};
