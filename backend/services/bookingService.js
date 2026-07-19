@@ -69,3 +69,10 @@ export const getBookingById = async (bookingId, userId) => {
 
   return booking;
 };
+
+/**
+ * Get My Bookings
+ */
+export const getMyBookings = async (userId) => {
+  return await bookingRepository.findBookingsByUser(userId);
+};

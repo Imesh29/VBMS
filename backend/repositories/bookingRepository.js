@@ -66,3 +66,53 @@ export const findBookingById = async (id) => {
 
   return result.rows[0] || null;
 };
+
+/**
+ * Find booking by booking reference
+ */
+export const findBookingByReference = async (reference) => {
+  const query = `
+        SELECT *
+        FROM bookings
+        WHERE booking_reference = $1;
+    `;
+
+  const result = await pool.query(query, [reference]);
+
+  return result.rows[0] || null;
+};
+
+/**
+ * Find all bookings of a user
+ */
+export const findBookingsByUser = async (userId) => {
+  const query = `
+        SELECT
+            b.id,
+            b.booking_reference,
+            b.purpose,
+            b.destination,
+            b.departure_date,
+            b.return_date,
+            b.passenger_count,
+            b.remarks,
+            b.status,
+
+            v.vehicle_number,
+            v.vehicle_name,
+            v.vehicle_type
+
+        FROM bookings b
+
+        INNER JOIN vehicles v
+            ON b.vehicle_id = v.id
+
+        WHERE b.user_id = $1
+
+        ORDER BY b.created_at DESC;
+    `;
+
+  const result = await pool.query(query, [userId]);
+
+  return result.rows;
+};

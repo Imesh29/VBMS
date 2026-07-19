@@ -71,8 +71,18 @@ router.post(
 );
 
 /**
+ * GET /api/bookings/my
+ * USER only
+ */
+router.get(
+  "/my",
+  authenticate,
+  authorize("USER"),
+  bookingController.getMyBookings,
+);
+
+/**
  * GET /api/bookings/:id
- * Get Booking By ID
  * USER only
  */
 router.get(

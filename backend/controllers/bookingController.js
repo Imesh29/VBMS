@@ -41,3 +41,21 @@ export const getBookingById = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get My Bookings
+ */
+export const getMyBookings = async (req, res, next) => {
+  try {
+    const bookings = await bookingService.getMyBookings(req.user.id);
+
+    return successResponse(
+      res,
+      200,
+      "Bookings retrieved successfully.",
+      bookings,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
