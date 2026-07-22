@@ -59,3 +59,21 @@ export const findBookingById = async (bookingId) => {
 
   return result.rows[0] || null;
 };
+
+/**
+ * Approve booking
+ */
+export const approveBooking = async (bookingId) => {
+  const query = `
+        UPDATE bookings
+        SET
+            status = 'APPROVED',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+  const result = await pool.query(query, [bookingId]);
+
+  return result.rows[0] || null;
+};

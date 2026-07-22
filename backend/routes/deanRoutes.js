@@ -28,4 +28,17 @@ router.get(
   deanController.getPendingBookings,
 );
 
+/**
+ * PATCH /api/dean/bookings/:id/approve
+ * Approve booking
+ * DEAN only
+ */
+router.patch(
+  "/bookings/:id/approve",
+  authenticate,
+  authorize("DEAN"),
+  bookingIdValidation,
+  deanController.approveBooking,
+);
+
 export default router;
