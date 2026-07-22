@@ -3,6 +3,7 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import vehicleRoutes from "./routes/vehicleRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import deanRoutes from "./routes/deanRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -21,6 +22,9 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 app.use("/api/vehicles", vehicleRoutes);
+
 app.use("/api/bookings", bookingRoutes);
+
+app.use("/api/dean", deanRoutes);
 
 export default app;
