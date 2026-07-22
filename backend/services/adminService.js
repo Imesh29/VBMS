@@ -29,3 +29,25 @@ export const confirmBooking = async (bookingId) => {
 
   return await adminRepository.confirmBooking(bookingId);
 };
+
+/**
+ * Complete a booking
+ */
+export const completeBooking = async (bookingId) => {
+  // Check booking exists
+  const booking = await adminRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw createError("Booking not found.", 404);
+  }
+
+  // Only confirmed bookings can be completed
+  if (booking.status !== "CONFIRMED") {
+    throw createError(
+      `Only confirmed bookings can be completed. Current status: ${booking.status}.`,
+      409,
+    );
+  }
+
+  return await adminRepository.completeBooking(bookingId);
+};

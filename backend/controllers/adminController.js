@@ -47,3 +47,28 @@ export const confirmBooking = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Complete booking
+ * PATCH /api/admin/bookings/:id/complete
+ */
+export const completeBooking = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return errorResponse(res, 400, "Validation failed.", errors.array());
+    }
+
+    const booking = await adminService.completeBooking(req.params.id);
+
+    return successResponse(
+      res,
+      200,
+      "Booking completed successfully.",
+      booking,
+    );
+  } catch (error) {
+    next(error);
+  }
+};

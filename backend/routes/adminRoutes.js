@@ -39,4 +39,17 @@ router.patch(
   adminController.confirmBooking,
 );
 
+/**
+ * PATCH /api/admin/bookings/:id/complete
+ * Complete booking
+ * ADMIN only
+ */
+router.patch(
+  "/bookings/:id/complete",
+  authenticate,
+  authorize("ADMIN"),
+  bookingIdValidation,
+  adminController.completeBooking,
+);
+
 export default router;

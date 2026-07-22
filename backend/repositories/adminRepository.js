@@ -77,3 +77,21 @@ export const confirmBooking = async (bookingId) => {
 
   return result.rows[0] || null;
 };
+
+/**
+ * Complete booking
+ */
+export const completeBooking = async (bookingId) => {
+  const query = `
+        UPDATE bookings
+        SET
+            status = 'COMPLETED',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+  const result = await pool.query(query, [bookingId]);
+
+  return result.rows[0] || null;
+};
