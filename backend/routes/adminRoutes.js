@@ -19,13 +19,24 @@ const bookingIdValidation = [
 /**
  * GET /api/admin/bookings
  * Get all approved bookings
- * ADMIN only
  */
 router.get(
   "/bookings",
   authenticate,
   authorize("ADMIN"),
   adminController.getApprovedBookings,
+);
+
+/**
+ * PATCH /api/admin/bookings/:id/confirm
+ * Confirm booking
+ */
+router.patch(
+  "/bookings/:id/confirm",
+  authenticate,
+  authorize("ADMIN"),
+  bookingIdValidation,
+  adminController.confirmBooking,
 );
 
 export default router;

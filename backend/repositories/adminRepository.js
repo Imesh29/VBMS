@@ -44,3 +44,36 @@ export const getApprovedBookings = async () => {
 
   return result.rows;
 };
+
+/**
+ * Find booking by ID
+ */
+export const findBookingById = async (bookingId) => {
+  const query = `
+        SELECT *
+        FROM bookings
+        WHERE id = $1;
+    `;
+
+  const result = await pool.query(query, [bookingId]);
+
+  return result.rows[0] || null;
+};
+
+/**
+ * Confirm booking
+ */
+export const confirmBooking = async (bookingId) => {
+  const query = `
+        UPDATE bookings
+        SET
+            status = 'CONFIRMED',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1
+        RETURNING *;
+    `;
+
+  const result = await pool.query(query, [bookingId]);
+
+  return result.rows[0] || null;
+};
