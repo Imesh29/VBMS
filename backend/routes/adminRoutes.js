@@ -52,4 +52,15 @@ router.patch(
   adminController.completeBooking,
 );
 
+/**
+ * GET /api/admin/vehicles
+ * View all vehicles
+ */
+router.get(
+  "/vehicles",
+  authenticate,
+  authorize("ADMIN"),
+  adminController.getAllVehicles,
+);
+
 export default router;

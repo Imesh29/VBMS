@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import * as adminService from "../services/adminService.js";
 
 import { successResponse, errorResponse } from "../utils/response.js";
+import * as vehicleService from "../services/vehicleService.js";
 
 /**
  * Get all approved bookings
@@ -67,6 +68,23 @@ export const completeBooking = async (req, res, next) => {
       200,
       "Booking completed successfully.",
       booking,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get all vehicles
+
+export const getAllVehicles = async (req, res, next) => {
+  try {
+    const vehicles = await vehicleService.getAllVehicles();
+
+    return successResponse(
+      res,
+      200,
+      "Vehicles retrieved successfully.",
+      vehicles,
     );
   } catch (error) {
     next(error);
