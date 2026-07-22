@@ -90,3 +90,28 @@ export const getAllVehicles = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Cancel booking
+ * PATCH /api/admin/bookings/:id/cancel
+ */
+export const cancelBooking = async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return errorResponse(res, 400, "Validation failed.", errors.array());
+    }
+
+    const booking = await adminService.cancelBooking(req.params.id);
+
+    return successResponse(
+      res,
+      200,
+      "Booking cancelled successfully.",
+      booking,
+    );
+  } catch (error) {
+    next(error);
+  }
+};

@@ -51,3 +51,20 @@ export const completeBooking = async (bookingId) => {
 
   return await adminRepository.completeBooking(bookingId);
 };
+
+export const cancelBooking = async (bookingId) => {
+  const booking = await adminRepository.findBookingById(bookingId);
+
+  if (!booking) {
+    throw createError("Booking not found.", 404);
+  }
+
+  if (booking.status === "COMPLETED" || booking.status === "CANCELLED") {
+    throw createError(
+      `Booking cannot be cancelled. Current status: ${booking.status}.`,
+      409,
+    );
+  }
+
+  return await adminRepository.cancelBooking(bookingId);
+};

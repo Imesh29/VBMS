@@ -63,4 +63,16 @@ router.get(
   adminController.getAllVehicles,
 );
 
+/**
+ * PATCH /api/admin/bookings/:id/cancel
+ * Cancel booking
+ */
+router.patch(
+  "/bookings/:id/cancel",
+  authenticate,
+  authorize("ADMIN"),
+  bookingIdValidation,
+  adminController.cancelBooking,
+);
+
 export default router;
