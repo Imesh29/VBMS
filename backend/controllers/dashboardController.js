@@ -20,3 +20,22 @@ export const getUserDashboard = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get dashboard statistics for the Dean
+ * GET /api/dashboard/dean
+ */
+export const getDeanDashboard = async (req, res, next) => {
+  try {
+    const dashboard = await dashboardService.getDeanDashboard();
+
+    return successResponse(
+      res,
+      200,
+      "Dean dashboard retrieved successfully.",
+      dashboard,
+    );
+  } catch (error) {
+    next(error);
+  }
+};

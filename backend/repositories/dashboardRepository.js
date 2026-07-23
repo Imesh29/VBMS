@@ -41,3 +41,38 @@ export const getUserDashboard = async (userId) => {
 
   return result.rows[0];
 };
+
+/**
+ * Get dashboard statistics for the Dean
+ */
+export const getDeanDashboard = async () => {
+  const query = `
+        SELECT
+
+            COUNT(*) FILTER (
+                WHERE status = 'PENDING'
+            ) AS pending_approvals,
+
+            COUNT(*) FILTER (
+                WHERE status = 'APPROVED'
+            ) AS approved_bookings,
+
+            COUNT(*) FILTER (
+                WHERE status = 'CONFIRMED'
+            ) AS confirmed_bookings,
+
+            COUNT(*) FILTER (
+                WHERE status = 'COMPLETED'
+            ) AS completed_bookings,
+
+            COUNT(*) FILTER (
+                WHERE status = 'CANCELLED'
+            ) AS cancelled_bookings
+
+        FROM bookings;
+    `;
+
+  const result = await pool.query(query);
+
+  return result.rows[0];
+};

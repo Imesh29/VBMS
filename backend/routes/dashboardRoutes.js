@@ -15,4 +15,15 @@ const router = express.Router();
  */
 router.get("/user", authenticate, dashboardController.getUserDashboard);
 
+/**
+ * GET /api/dashboard/dean
+ * Dashboard for dean
+ */
+router.get(
+  "/dean",
+  authenticate,
+  authorize("DEAN"),
+  dashboardController.getDeanDashboard,
+);
+
 export default router;

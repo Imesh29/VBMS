@@ -11,3 +11,10 @@ export const getUserDashboard = async (userId) => {
 
   return await dashboardRepository.getUserDashboard(userId);
 };
+
+/**
+ * Get dashboard statistics for the Dean
+ */
+export const getDeanDashboard = async () => {
+  return await dashboardRepository.getDeanDashboard();
+};
