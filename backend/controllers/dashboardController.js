@@ -39,3 +39,22 @@ export const getDeanDashboard = async (req, res, next) => {
     next(error);
   }
 };
+
+/**
+ * Get dashboard statistics for the Admin
+ * GET /api/dashboard/admin
+ */
+export const getAdminDashboard = async (req, res, next) => {
+  try {
+    const dashboard = await dashboardService.getAdminDashboard();
+
+    return successResponse(
+      res,
+      200,
+      "Admin dashboard retrieved successfully.",
+      dashboard,
+    );
+  } catch (error) {
+    next(error);
+  }
+};

@@ -26,4 +26,15 @@ router.get(
   dashboardController.getDeanDashboard,
 );
 
+/**
+ * GET /api/dashboard/admin
+ * Dashboard for admin
+ */
+router.get(
+  "/admin",
+  authenticate,
+  authorize("ADMIN"),
+  dashboardController.getAdminDashboard,
+);
+
 export default router;

@@ -18,3 +18,10 @@ export const getUserDashboard = async (userId) => {
 export const getDeanDashboard = async () => {
   return await dashboardRepository.getDeanDashboard();
 };
+
+/**
+ * Get dashboard statistics for the Admin
+ */
+export const getAdminDashboard = async () => {
+  return await dashboardRepository.getAdminDashboard();
+};

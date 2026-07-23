@@ -76,3 +76,78 @@ export const getDeanDashboard = async () => {
 
   return result.rows[0];
 };
+
+/**
+ * Get dashboard statistics for the Admin
+ */
+export const getAdminDashboard = async () => {
+  const query = `
+        SELECT
+
+            /* Vehicle Statistics */
+
+            (
+                SELECT COUNT(*)
+                FROM vehicles
+            ) AS total_vehicles,
+
+            (
+                SELECT COUNT(*)
+                FROM vehicles
+                WHERE status = 'AVAILABLE'
+            ) AS available_vehicles,
+
+            (
+                SELECT COUNT(*)
+                FROM vehicles
+                WHERE status = 'IN_USE'
+            ) AS vehicles_in_use,
+
+            (
+                SELECT COUNT(*)
+                FROM vehicles
+                WHERE status = 'MAINTENANCE'
+            ) AS vehicles_under_maintenance,
+
+            /* Booking Statistics */
+
+            (
+                SELECT COUNT(*)
+                FROM bookings
+            ) AS total_bookings,
+
+            (
+                SELECT COUNT(*)
+                FROM bookings
+                WHERE status = 'PENDING'
+            ) AS pending_bookings,
+
+            (
+                SELECT COUNT(*)
+                FROM bookings
+                WHERE status = 'APPROVED'
+            ) AS approved_bookings,
+
+            (
+                SELECT COUNT(*)
+                FROM bookings
+                WHERE status = 'CONFIRMED'
+            ) AS confirmed_bookings,
+
+            (
+                SELECT COUNT(*)
+                FROM bookings
+                WHERE status = 'COMPLETED'
+            ) AS completed_bookings,
+
+            (
+                SELECT COUNT(*)
+                FROM bookings
+                WHERE status = 'CANCELLED'
+            ) AS cancelled_bookings;
+    `;
+
+  const result = await pool.query(query);
+
+  return result.rows[0];
+};
