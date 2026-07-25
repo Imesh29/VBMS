@@ -43,11 +43,21 @@ export const getBookingById = async (req, res, next) => {
 };
 
 /**
- * Get My Bookings
+ * Get all bookings of the logged-in user
+ * Supports optional filters:
+ * ?status=PENDING
+ * ?vehicle=NB1234
+ * ?date=2026-06-25
  */
 export const getMyBookings = async (req, res, next) => {
   try {
-    const bookings = await bookingService.getMyBookings(req.user.id);
+    const filters = {
+      status: req.query.status,
+      vehicle: req.query.vehicle,
+      date: req.query.date,
+    };
+
+    const bookings = await bookingService.getMyBookings(req.user.id, filters);
 
     return successResponse(
       res,
