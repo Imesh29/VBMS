@@ -128,36 +128,114 @@ export const findBookingByReference = async (reference) => {
 };
 
 /**
- * Find all bookings of a user
+ * Find all bookings of a user with optional filters
  */
-export const findBookingsByUser = async (userId) => {
+export const findBookingsByUser = async (userId, filters = {}) => {
+  const { status, vehicle, date } = filters;
+
   const query = `
-        SELECT
-            b.id,
-            b.booking_reference,
-            b.purpose,
-            b.destination,
-            b.departure_date,
-            b.return_date,
-            b.passenger_count,
-            b.remarks,
-            b.status,
+      SELECT
+          b.id,
+          b.booking_reference,
+          b.purpose,
+          b.destination,
+          b.departure_date,
+          b.return_date,
+          b.passenger_count,
+          b.remarks,
+          b.status,
 
-            v.vehicle_number,
-            v.vehicle_name,
-            v.vehicle_type
+          v.vehicle_number,
+          v.vehicle_name,
+          v.vehicle_type
 
-        FROM bookings b
+      FROM bookings b
 
-        INNER JOIN vehicles v
-            ON b.vehicle_id = v.id
+      INNER JOIN vehicles v
+          ON b.vehicle_id = v.id
 
-        WHERE b.user_id = $1
+      WHERE b.user_id = $1
 
-        ORDER BY b.created_at DESC;
-    `;
+      AND (
+          $2::text IS NULL
+          OR b.status = $2
+      )
 
-  const result = await pool.query(query, [userId]);
+      AND (
+          $3::text IS NULL
+          OR v.vehicle_number ILIKE '%' || $3 || '%'
+      )
+
+      AND (
+          $4::date IS NULL
+          OR b.departure_date = $4
+      )
+
+      ORDER BY b.created_at DESC;
+  `;
+
+  const result = await pool.query(query, [
+    userId,
+    status || null,
+    vehicle || null,
+    date || null,
+  ]);
+
+  return result.rows;
+};
+
+/**
+ * Find all bookings with optional filters
+ * (Admin / Dean)
+ */
+export const findAllBookings = async (filters = {}) => {
+  const { status, vehicle, date } = filters;
+
+  const query = `
+      SELECT
+          b.id,
+          b.booking_reference,
+          b.purpose,
+          b.destination,
+          b.departure_date,
+          b.return_date,
+          b.passenger_count,
+          b.remarks,
+          b.status,
+
+          u.id AS user_id,
+          u.full_name,
+          u.email,
+
+          v.vehicle_number,
+          v.vehicle_name,
+          v.vehicle_type
+
+      FROM bookings b
+
+      INNER JOIN users u
+          ON b.user_id = u.id
+
+      INNER JOIN vehicles v
+          ON b.vehicle_id = v.id
+
+      WHERE
+          ($1::text IS NULL OR b.status = $1)
+
+      AND
+          ($2::text IS NULL OR v.vehicle_number ILIKE '%' || $2 || '%')
+
+      AND
+          ($3::date IS NULL OR b.departure_date = $3)
+
+      ORDER BY b.created_at DESC;
+  `;
+
+  const result = await pool.query(query, [
+    status || null,
+    vehicle || null,
+    date || null,
+  ]);
 
   return result.rows;
 };
