@@ -43,7 +43,8 @@ export const getBookingById = async (req, res, next) => {
 };
 
 /**
- * Get all bookings of the logged-in user
+ * Get bookings of the logged-in user
+ * Supports filtering, pagination and sorting.
  * Supports optional filters:
  * ?status=PENDING
  * ?vehicle=NB1234
@@ -51,13 +52,17 @@ export const getBookingById = async (req, res, next) => {
  */
 export const getMyBookings = async (req, res, next) => {
   try {
-    const filters = {
-      status: req.query.status,
-      vehicle: req.query.vehicle,
-      date: req.query.date,
-    };
+    const { status, vehicle, date, page, limit, sort, order } = req.query;
 
-    const bookings = await bookingService.getMyBookings(req.user.id, filters);
+    const bookings = await bookingService.getMyBookings(req.user.id, {
+      status,
+      vehicle,
+      date,
+      page,
+      limit,
+      sort,
+      order,
+    });
 
     return successResponse(
       res,
