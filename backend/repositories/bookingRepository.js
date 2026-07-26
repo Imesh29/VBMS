@@ -156,20 +156,20 @@ export const findBookingsByUser = async (userId, filters = {}) => {
 
       WHERE b.user_id = $1
 
-      AND (
-          $2::text IS NULL
-          OR b.status = $2
-      )
+    AND (
+    $2::text IS NULL
+    OR b.status::text = $2
+)
 
-      AND (
-          $3::text IS NULL
-          OR v.vehicle_number ILIKE '%' || $3 || '%'
-      )
+AND (
+    $3::text IS NULL
+    OR v.vehicle_number ILIKE '%' || $3 || '%'
+)
 
-      AND (
-          $4::date IS NULL
-          OR b.departure_date = $4
-      )
+AND (
+    $4::date IS NULL
+    OR b.departure_date = $4
+)
 
       ORDER BY b.created_at DESC;
   `;
