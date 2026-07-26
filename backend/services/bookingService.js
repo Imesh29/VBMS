@@ -84,10 +84,22 @@ export const getBookingById = async (bookingId, userId) => {
 };
 
 /**
- * Get My Bookings
+ * Get all bookings of the logged-in user with optional filters
  */
-export const getMyBookings = async (userId) => {
-  return await bookingRepository.findBookingsByUser(userId);
+export const getMyBookings = async (userId, filters = {}) => {
+  if (!userId) {
+    throw createError("User ID is required.", 400);
+  }
+
+  return await bookingRepository.findBookingsByUser(userId, filters);
+};
+
+/**
+ * Get all bookings with optional filters
+ * (Admin / Dean)
+ */
+export const getAllBookings = async (filters = {}) => {
+  return await bookingRepository.findAllBookings(filters);
 };
 
 /**

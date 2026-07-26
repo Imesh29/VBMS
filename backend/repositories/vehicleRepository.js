@@ -2,25 +2,42 @@ import { pool } from "../config/db.js";
 
 // Get all vehicles
 
-export const findAllVehicles = async () => {
+/**
+ * Find all vehicles with optional search
+ */
+export const findAllVehicles = async (search = null) => {
   const query = `
-    SELECT
-      id,
-      vehicle_number,
-      vehicle_name,
-      vehicle_type,
-      capacity,
-      fuel_type,
-      driver_name,
-      last_service_date,
-      status,
-      created_at,
-      updated_at
-    FROM vehicles
-    ORDER BY created_at DESC;
-  `;
+        SELECT
+            id,
+            vehicle_number,
+            vehicle_name,
+            vehicle_type,
+            capacity,
+            fuel_type,
+            driver_name,
+            last_service_date,
+            status,
+            created_at,
+            updated_at
 
-  const result = await pool.query(query);
+        FROM vehicles
+
+        WHERE
+            (
+                $1::text IS NULL
+
+                OR vehicle_number ILIKE '%' || $1 || '%'
+
+                OR vehicle_name ILIKE '%' || $1 || '%'
+
+                OR vehicle_type ILIKE '%' || $1 || '%'
+            )
+
+        ORDER BY created_at DESC;
+    `;
+
+  const result = await pool.query(query, [search || null]);
+
   return result.rows;
 };
 

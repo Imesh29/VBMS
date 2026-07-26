@@ -71,16 +71,16 @@ router.post(
 );
 
 /**
- * GET /api/bookings/my
+ * GET /api/bookings
  * USER only
+ * Supports search & filtering
  */
 router.get(
-  "/my",
+  "/",
   authenticate,
   authorize("USER"),
   bookingController.getMyBookings,
 );
-
 /**
  * GET /api/bookings/:id
  * USER only
