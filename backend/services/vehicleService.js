@@ -1,10 +1,11 @@
 import * as vehicleRepository from "../repositories/vehicleRepository.js";
 import createError from "../utils/createError.js";
 
-// Get all vehicles
-
-export const getAllVehicles = async () => {
-  return await vehicleRepository.findAllVehicles();
+/**
+ * Get all vehicles with optional search
+ */
+export const getAllVehicles = async (search = null) => {
+  return await vehicleRepository.findAllVehicles(search);
 };
 
 // Create new vehicle

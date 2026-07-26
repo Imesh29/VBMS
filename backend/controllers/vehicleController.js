@@ -3,11 +3,18 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 import { validationResult } from "express-validator";
 
-// Get all vehicles
-
+/**
+ * Get all vehicles
+ * Supports optional search:
+ * ?search=bus
+ * ?search=NB1234
+ * ?search=Toyota
+ */
 export const getAllVehicles = async (req, res, next) => {
   try {
-    const vehicles = await vehicleService.getAllVehicles();
+    const { search } = req.query;
+
+    const vehicles = await vehicleService.getAllVehicles(search);
 
     return successResponse(
       res,
@@ -19,7 +26,6 @@ export const getAllVehicles = async (req, res, next) => {
     next(error);
   }
 };
-
 // create new vehicle
 
 export const createVehicle = async (req, res, next) => {
