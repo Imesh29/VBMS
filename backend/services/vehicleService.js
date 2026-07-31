@@ -2,10 +2,25 @@ import * as vehicleRepository from "../repositories/vehicleRepository.js";
 import createError from "../utils/createError.js";
 
 /**
- * Get all vehicles with optional search
+ * Get all vehicles with optional search,
+ * pagination and sorting.
  */
-export const getAllVehicles = async (search = null) => {
-  return await vehicleRepository.findAllVehicles(search);
+export const getAllVehicles = async (options = {}) => {
+  const {
+    search,
+    page = 1,
+    limit = 10,
+    sort = "created_at",
+    order = "DESC",
+  } = options;
+
+  return await vehicleRepository.findAllVehicles({
+    search,
+    page: Number(page),
+    limit: Number(limit),
+    sort,
+    order,
+  });
 };
 
 // Create new vehicle

@@ -128,11 +128,74 @@ export const findBookingByReference = async (reference) => {
 };
 
 /**
- * Find all bookings of a user with optional filters
+ * Find all bookings of a user with filtering, sorting and pagination
  */
 export const findBookingsByUser = async (userId, filters = {}) => {
-  const { status, vehicle, date } = filters;
+  const {
+    status,
+    vehicle,
+    date,
+    page = 1,
+    limit = 10,
+    sort = "created_at",
+    order = "DESC",
+  } = filters;
 
+  const allowedSortFields = [
+    "created_at",
+    "departure_date",
+    "return_date",
+    "status",
+    "booking_reference",
+  ];
+
+  const sortField = allowedSortFields.includes(sort) ? sort : "created_at";
+
+  const sortOrder = order?.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+  const offset = (page - 1) * limit;
+
+  /*
+   * Get total records
+   */
+  const countQuery = `
+      SELECT COUNT(*) AS total
+
+      FROM bookings b
+
+      INNER JOIN vehicles v
+          ON b.vehicle_id = v.id
+
+      WHERE b.user_id = $1
+
+      AND (
+          $2::text IS NULL
+          OR b.status = $2
+      )
+
+      AND (
+          $3::text IS NULL
+          OR v.vehicle_number ILIKE '%' || $3 || '%'
+      )
+
+      AND (
+          $4::date IS NULL
+          OR b.departure_date = $4
+      );
+  `;
+
+  const countResult = await pool.query(countQuery, [
+    userId,
+    status || null,
+    vehicle || null,
+    date || null,
+  ]);
+
+  const totalItems = Number(countResult.rows[0].total);
+
+  /*
+   * Get paginated records
+   */
   const query = `
       SELECT
           b.id,
@@ -144,6 +207,7 @@ export const findBookingsByUser = async (userId, filters = {}) => {
           b.passenger_count,
           b.remarks,
           b.status,
+          b.created_at,
 
           v.vehicle_number,
           v.vehicle_name,
@@ -156,22 +220,25 @@ export const findBookingsByUser = async (userId, filters = {}) => {
 
       WHERE b.user_id = $1
 
-    AND (
-    $2::text IS NULL
-    OR b.status::text = $2
-)
+      AND (
+          $2::text IS NULL
+          OR b.status = $2
+      )
 
-AND (
-    $3::text IS NULL
-    OR v.vehicle_number ILIKE '%' || $3 || '%'
-)
+      AND (
+          $3::text IS NULL
+          OR v.vehicle_number ILIKE '%' || $3 || '%'
+      )
 
-AND (
-    $4::date IS NULL
-    OR b.departure_date = $4
-)
+      AND (
+          $4::date IS NULL
+          OR b.departure_date = $4
+      )
 
-      ORDER BY b.created_at DESC;
+      ORDER BY b.${sortField} ${sortOrder}
+
+      LIMIT $5
+      OFFSET $6;
   `;
 
   const result = await pool.query(query, [
@@ -179,17 +246,78 @@ AND (
     status || null,
     vehicle || null,
     date || null,
+    limit,
+    offset,
   ]);
 
-  return result.rows;
+  return {
+    items: result.rows,
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+    },
+  };
 };
 
 /**
- * Find all bookings with optional filters
+ * Find all bookings with filtering, sorting and pagination
  * (Admin / Dean)
  */
 export const findAllBookings = async (filters = {}) => {
-  const { status, vehicle, date } = filters;
+  const {
+    status,
+    vehicle,
+    date,
+    page = 1,
+    limit = 10,
+    sort = "created_at",
+    order = "DESC",
+  } = filters;
+
+  const allowedSortFields = [
+    "created_at",
+    "departure_date",
+    "return_date",
+    "status",
+    "booking_reference",
+  ];
+
+  const sortField = allowedSortFields.includes(sort) ? sort : "created_at";
+
+  const sortOrder = order?.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+  const offset = (page - 1) * limit;
+
+  const countQuery = `
+      SELECT COUNT(*) AS total
+
+      FROM bookings b
+
+      INNER JOIN users u
+          ON b.user_id = u.id
+
+      INNER JOIN vehicles v
+          ON b.vehicle_id = v.id
+
+      WHERE
+          ($1::text IS NULL OR b.status = $1)
+
+      AND
+          ($2::text IS NULL OR v.vehicle_number ILIKE '%' || $2 || '%')
+
+      AND
+          ($3::date IS NULL OR b.departure_date = $3);
+  `;
+
+  const countResult = await pool.query(countQuery, [
+    status || null,
+    vehicle || null,
+    date || null,
+  ]);
+
+  const totalItems = Number(countResult.rows[0].total);
 
   const query = `
       SELECT
@@ -202,6 +330,7 @@ export const findAllBookings = async (filters = {}) => {
           b.passenger_count,
           b.remarks,
           b.status,
+          b.created_at,
 
           u.id AS user_id,
           u.full_name,
@@ -228,16 +357,29 @@ export const findAllBookings = async (filters = {}) => {
       AND
           ($3::date IS NULL OR b.departure_date = $3)
 
-      ORDER BY b.created_at DESC;
+      ORDER BY b.${sortField} ${sortOrder}
+
+      LIMIT $4
+      OFFSET $5;
   `;
 
   const result = await pool.query(query, [
     status || null,
     vehicle || null,
     date || null,
+    limit,
+    offset,
   ]);
 
-  return result.rows;
+  return {
+    items: result.rows,
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+    },
+  };
 };
 
 /**

@@ -84,22 +84,59 @@ export const getBookingById = async (bookingId, userId) => {
 };
 
 /**
- * Get all bookings of the logged-in user with optional filters
+ * Get bookings of the logged-in user with filtering,
+ * pagination and sorting.
  */
 export const getMyBookings = async (userId, filters = {}) => {
   if (!userId) {
-    throw createError("User ID is required.", 400);
+    throw createError(400, "User ID is required.");
   }
 
-  return await bookingRepository.findBookingsByUser(userId, filters);
+  const {
+    status,
+    vehicle,
+    date,
+    page = 1,
+    limit = 10,
+    sort = "created_at",
+    order = "DESC",
+  } = filters;
+
+  return await bookingRepository.findBookingsByUser(userId, {
+    status,
+    vehicle,
+    date,
+    page: Number(page),
+    limit: Number(limit),
+    sort,
+    order,
+  });
 };
 
 /**
- * Get all bookings with optional filters
- * (Admin / Dean)
+ * Get all bookings with filtering,
+ * pagination and sorting.
  */
 export const getAllBookings = async (filters = {}) => {
-  return await bookingRepository.findAllBookings(filters);
+  const {
+    status,
+    vehicle,
+    date,
+    page = 1,
+    limit = 10,
+    sort = "created_at",
+    order = "DESC",
+  } = filters;
+
+  return await bookingRepository.findAllBookings({
+    status,
+    vehicle,
+    date,
+    page: Number(page),
+    limit: Number(limit),
+    sort,
+    order,
+  });
 };
 
 /**
