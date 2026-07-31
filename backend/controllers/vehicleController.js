@@ -5,16 +5,26 @@ import { validationResult } from "express-validator";
 
 /**
  * Get all vehicles
- * Supports optional search:
+ * Supports optional search:, pagination and sorting.
  * ?search=bus
  * ?search=NB1234
  * ?search=Toyota
+ * ?page=1
+ * ?limit=10
+ * ?sort=vehicle_name
+ * ?order=ASC
  */
 export const getAllVehicles = async (req, res, next) => {
   try {
-    const { search } = req.query;
+    const { search, page, limit, sort, order } = req.query;
 
-    const vehicles = await vehicleService.getAllVehicles(search);
+    const vehicles = await vehicleService.getAllVehicles({
+      search,
+      page,
+      limit,
+      sort,
+      order,
+    });
 
     return successResponse(
       res,

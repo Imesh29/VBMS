@@ -3,42 +3,93 @@ import { pool } from "../config/db.js";
 // Get all vehicles
 
 /**
- * Find all vehicles with optional search
+ * Find all vehicles with optional search,
+ * pagination and sorting.
  */
-export const findAllVehicles = async (search = null) => {
+export const findAllVehicles = async (options = {}) => {
+  const {
+    search,
+    page = 1,
+    limit = 10,
+    sort = "created_at",
+    order = "DESC",
+  } = options;
+
+  const allowedSortFields = [
+    "vehicle_number",
+    "vehicle_name",
+    "vehicle_type",
+    "status",
+    "created_at",
+  ];
+
+  const sortField = allowedSortFields.includes(sort) ? sort : "created_at";
+
+  const sortOrder = order?.toUpperCase() === "ASC" ? "ASC" : "DESC";
+
+  const offset = (page - 1) * limit;
+
+  /*
+   * Count total matching vehicles
+   */
+  const countQuery = `
+      SELECT COUNT(*) AS total
+      FROM vehicles
+      WHERE (
+          $1::text IS NULL
+          OR vehicle_number ILIKE '%' || $1 || '%'
+          OR vehicle_name ILIKE '%' || $1 || '%'
+          OR vehicle_type ILIKE '%' || $1 || '%'
+      );
+  `;
+
+  const countResult = await pool.query(countQuery, [search || null]);
+
+  const totalItems = Number(countResult.rows[0].total);
+
+  /*
+   * Fetch paginated vehicles
+   */
   const query = `
-        SELECT
-            id,
-            vehicle_number,
-            vehicle_name,
-            vehicle_type,
-            capacity,
-            fuel_type,
-            driver_name,
-            last_service_date,
-            status,
-            created_at,
-            updated_at
+      SELECT
+          id,
+          vehicle_number,
+          vehicle_name,
+          vehicle_type,
+          capacity,
+          fuel_type,
+          driver_name,
+          last_service_date,
+          status,
+          created_at,
+          updated_at
+      FROM vehicles
+      WHERE (
+          $1::text IS NULL
+          OR vehicle_number ILIKE '%' || $1 || '%'
+          OR vehicle_name ILIKE '%' || $1 || '%'
+          OR vehicle_type ILIKE '%' || $1 || '%'
+      )
+      ORDER BY ${sortField} ${sortOrder}
+      LIMIT $2
+      OFFSET $3;
+  `;
 
-        FROM vehicles
+  const result = await pool.query(query, [
+    search || null,
+    Number(limit),
+    offset,
+  ]);
 
-        WHERE
-            (
-                $1::text IS NULL
-
-                OR vehicle_number ILIKE '%' || $1 || '%'
-
-                OR vehicle_name ILIKE '%' || $1 || '%'
-
-                OR vehicle_type ILIKE '%' || $1 || '%'
-            )
-
-        ORDER BY created_at DESC;
-    `;
-
-  const result = await pool.query(query, [search || null]);
-
-  return result.rows;
+  return {
+    items: result.rows,
+    pagination: {
+      page: Number(page),
+      limit: Number(limit),
+      totalItems,
+      totalPages: Math.ceil(totalItems / Number(limit)),
+    },
+  };
 };
 
 export const findVehicleByNumber = async (vehicleNumber) => {
