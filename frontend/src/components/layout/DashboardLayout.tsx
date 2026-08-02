@@ -1,8 +1,8 @@
 import TopNavbar from "./TopNavbar";
-import WelcomeBanner from "./WelcomeBanner";
-import StatsCard from "./StatsCard";
-import BookingChart from "./BookingChart";
-import StatusChart from "./StatusChart";
+import WelcomeBanner from "../dashboard/WelcomeBanner";
+import StatsCard from "../dashboard/StatsCard";
+import BookingChart from "../dashboard/BookingChart";
+import StatusChart from "../dashboard/StatusChart";
 
 export default function DashboardLayout() {
   return (
@@ -22,29 +22,13 @@ export default function DashboardLayout() {
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-8">
-            <StatsCard
-              title="Total Bookings"
-              value="08"
-              color="blue"
-            />
+            <StatsCard title="Total Bookings" value="08" color="blue" />
 
-            <StatsCard
-              title="Pending Approval"
-              value="02"
-              color="yellow"
-            />
+            <StatsCard title="Pending Approval" value="02" color="yellow" />
 
-            <StatsCard
-              title="Vehicles In Use"
-              value="06"
-              color="green"
-            />
+            <StatsCard title="Vehicles In Use" value="06" color="green" />
 
-            <StatsCard
-              title="Maintenance"
-              value="02"
-              color="red"
-            />
+            <StatsCard title="Maintenance" value="02" color="red" />
           </div>
 
           {/* Charts Section */}
