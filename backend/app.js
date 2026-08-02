@@ -6,6 +6,7 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import deanRoutes from "./routes/deanRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 const app = express();
 app.use(express.json());
@@ -32,5 +33,7 @@ app.use("/api/dean", deanRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use("/api/dashboard", dashboardRoutes);
+
+app.use("/api/reports", reportRoutes);
 
 export default app;
