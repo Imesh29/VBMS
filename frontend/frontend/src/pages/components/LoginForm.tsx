@@ -16,16 +16,16 @@ export default function LoginForm() {
         {/* Heading */}
 
         <h1 className="text-4xl font-bold text-gray-900">
-          Welcome back
+          WELCOME
         </h1>
         <br></br>
 
-        <p className="mt-2 text-gray-500">
+        <h2>
           Sign in to access the booking system
-        </p>
+        </h2>
 
         {/* Role */}
-
+        <br></br>
         <div className="mt-8">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             ROLE
@@ -35,7 +35,7 @@ export default function LoginForm() {
         </div>
 
         {/* Email */}
-
+        <br></br>
         <div className="mt-5">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             EMAIL ADDRESS
@@ -49,12 +49,11 @@ export default function LoginForm() {
         </div>
 
         {/* Password */}
-
+        <br></br>
         <div className="mt-5">
           <label className="block text-sm font-semibold text-gray-700 mb-2">
             PASSWORD
           </label>
-
           <InputField
             icon={<FaLock />}
             rightIcon={<FaEye />}
