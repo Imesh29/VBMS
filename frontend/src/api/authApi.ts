@@ -18,6 +18,24 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
+export interface RegisterRequest {
+  fullName: string;
+  email: string;
+  password: string;
+  department?: string;
+}
+
+/**
+ * Register a new staff account.
+ * Public registration always creates a USER (Staff/Lecturer) role.
+ * Does not return a token — the user must sign in afterward.
+ */
+export const register = async (payload: RegisterRequest): Promise<AuthUser> => {
+  const response = await api.post("/auth/register", payload);
+
+  return response.data.data;
+};
+
 /**
  * Login user.
  */

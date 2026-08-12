@@ -1,69 +1,63 @@
-import {
-  FaArrowUp,
-  FaCalendarAlt,
-  FaCar,
-  FaTools,
-  FaClock,
-} from "react-icons/fa";
+import type { ReactNode } from "react";
+import { FaArrowUp } from "react-icons/fa";
 
 interface StatsCardProps {
+  icon: ReactNode;
+  colorClass: string;
   title: string;
-  value: string;
-  color: "blue" | "green" | "yellow" | "red";
+  value: string | number;
+  caption?: string;
+  trend?: { value: string; up: boolean };
 }
 
-export default function StatsCard({ title, value, color }: StatsCardProps) {
-  const colors = {
-    blue: {
-      bg: "bg-blue-100",
-      text: "text-blue-600",
-      icon: <FaCalendarAlt />,
-    },
-    green: {
-      bg: "bg-green-100",
-      text: "text-green-600",
-      icon: <FaCar />,
-    },
-    yellow: {
-      bg: "bg-yellow-100",
-      text: "text-yellow-600",
-      icon: <FaClock />,
-    },
-    red: {
-      bg: "bg-red-100",
-      text: "text-red-600",
-      icon: <FaTools />,
-    },
-  };
-
-  const current = colors[color];
-
+export default function StatsCard({
+  icon,
+  colorClass,
+  title,
+  value,
+  caption,
+  trend,
+}: StatsCardProps) {
   return (
-    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 hover:-translate-y-1">
-      {/* Top */}
-
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-gray-500 text-sm">{title}</p>
-
-          <h2 className="text-4xl font-bold mt-3">{value}</h2>
-        </div>
-
+    <div
+      className="bg-white rounded-2xl p-6 shadow-sm border border-black/5 flex flex-col gap-5 hover:shadow-md transition-shadow"
+      style={{
+        margin: "8px",
+        padding: "20px",
+      }}
+    >
+      <div className="flex items-start justify-between">
         <div
-          className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${current.bg} ${current.text}`}
+          className={`w-[52px] h-[52px] rounded-xl flex items-center justify-center ${colorClass}`}
         >
-          {current.icon}
+          {icon}
         </div>
+
+        {trend && (
+          <span
+            className={`flex items-center gap-1 text-sm font-semibold ${
+              trend.up ? "text-emerald-600" : "text-red-500"
+            }`}
+          >
+            <FaArrowUp
+              className={`w-3.5 h-3.5 ${!trend.up ? "rotate-180" : ""}`}
+            />
+            {trend.value}
+          </span>
+        )}
       </div>
 
-      {/* Bottom */}
+      <div>
+        <p
+          className="text-3xl md:text-[2rem] font-bold text-[#1C1C2E] leading-none tracking-tight"
+          style={{ fontFamily: "Outfit, sans-serif" }}
+        >
+          {value}
+        </p>
 
-      <div className="flex items-center gap-2 mt-6">
-        <FaArrowUp className="text-green-500 text-sm" />
+        <p className="text-sm text-gray-500 mt-2">{title}</p>
 
-        <span className="text-green-600 font-semibold">+12%</span>
-
-        <span className="text-gray-500 text-sm">from last week</span>
+        {caption && <p className="text-xs text-gray-400 mt-1">{caption}</p>}
       </div>
     </div>
   );
