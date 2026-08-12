@@ -1,6 +1,7 @@
-import { FaCarSide } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaArrowLeft, FaCarSide } from "react-icons/fa";
 
-export default function LeftPanel() {
+export default function RegisterLeftPanel() {
   return (
     <section
       className="
@@ -8,8 +9,10 @@ export default function LeftPanel() {
         hidden
         min-h-screen
         overflow-hidden
+
         bg-[#5B1E1D]
         text-white
+
         lg:flex
         lg:w-[48%]
       "
@@ -18,7 +21,7 @@ export default function LeftPanel() {
           DECORATIVE BACKGROUND
       ====================================================== */}
 
-      {/* Top-right large circle */}
+      {/* Top-right circle */}
       <div
         className="
           absolute
@@ -50,7 +53,7 @@ export default function LeftPanel() {
         "
       />
 
-      {/* Bottom-left large circle */}
+      {/* Bottom-left circle */}
       <div
         className="
           absolute
@@ -67,13 +70,14 @@ export default function LeftPanel() {
       />
 
       {/* =====================================================
-          CONTENT CONTAINER
+          MAIN CONTENT
       ====================================================== */}
 
       <div
         className="
           relative
           z-10
+        
           flex
           min-h-screen
           w-full
@@ -83,68 +87,80 @@ export default function LeftPanel() {
           paddingTop: "42px",
           paddingLeft: "50px",
           paddingRight: "50px",
+          paddingBottom: "38px",
         }}
       >
+        {/* =================================================
+            BACK TO SIGN IN
+        ================================================== */}
+
+        <Link
+          to="/"
+          className="
+    inline-flex
+    w-fit
+    items-center
+    gap-3
+    text-sm
+    font-medium
+    text-white/55
+    transition-colors
+    hover:text-white
+  "
+        >
+          <FaArrowLeft className="text-xs" />
+          <span>Back to Sign In</span>
+        </Link>
+
         {/* =================================================
             BRAND
         ================================================== */}
 
         <div
           className="
-            flex
-            items-center
-            gap-4
-          "
+    flex
+    items-center
+    gap-4
+  "
+          style={{
+            marginTop: "30px",
+          }}
         >
           {/* Logo */}
-
           <div
             className="
-              flex
-              h-12
-              w-12
-              shrink-0
-              items-center
-              justify-center
-
-              rounded-full
-
-              bg-white/[0.12]
-
-              shadow-sm
-            "
+      flex
+      h-12
+      w-12
+      shrink-0
+      items-center
+      justify-center
+      rounded-full
+      bg-white/[0.12]
+    "
           >
-            <FaCarSide
-              className="
-                text-xl
-                text-white
-              "
-            />
+            <FaCarSide className="text-xl text-white" />
           </div>
 
-          {/* Brand text */}
-
+          {/* Brand */}
           <div>
             <h2
               className="
-                text-[20px]
-                font-bold
-                leading-none
-                tracking-tight
-              "
+        text-[20px]
+        font-bold
+        leading-none
+        tracking-tight
+      "
             >
               VBMS
             </h2>
 
             <p
               className="
-                mt-1.5
-
-                text-[14px]
-                leading-none
-
-                text-white/45
-              "
+        text-[14px]
+        leading-none
+        text-white/45
+      "
               style={{
                 marginTop: "9px",
               }}
@@ -153,7 +169,6 @@ export default function LeftPanel() {
             </p>
           </div>
         </div>
-
         {/* =================================================
             HERO CONTENT
         ================================================== */}
@@ -163,7 +178,7 @@ export default function LeftPanel() {
             max-w-[470px]
           "
           style={{
-            marginTop: "68px",
+            marginTop: "58px",
           }}
         >
           <h1
@@ -176,9 +191,9 @@ export default function LeftPanel() {
               text-white
             "
           >
-            University Vehicle
+            Join the
             <br />
-            Services Portal
+            Booking System
           </h1>
 
           <p
@@ -194,36 +209,14 @@ export default function LeftPanel() {
               text-white/55
             "
             style={{
-              marginTop: "50px",
+              marginTop: "40px",
             }}
           >
-            Streamlined vehicle booking management for staff, Faculty Deans, and
-            the Vehicle Management Department.
+            Register your staff account to start requesting university vehicle
+            bookings for your department.
           </p>
         </div>
       </div>
-
-      {/* =====================================================
-          SUBTLE DECORATIVE GLOW
-      ====================================================== */}
-
-      <div
-        className="
-          pointer-events-none
-          absolute
-          left-[45%]
-          top-[25%]
-
-          h-[180px]
-          w-[180px]
-
-          rounded-full
-
-          bg-white/[0.012]
-
-          blur-3xl
-        "
-      />
     </section>
   );
 }

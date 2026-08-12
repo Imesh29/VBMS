@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/DashboardPage";
 import Login from "./pages/LoginPage";
+import Register from "./pages/RegisterPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -11,6 +12,9 @@ function App() {
       <Routes>
         {/* Login */}
         <Route path="/" element={<Login />} />
+
+        {/* Registration */}
+        <Route path="/register" element={<Register />} />
 
         {/* Protected Dashboard */}
         <Route

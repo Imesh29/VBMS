@@ -1,12 +1,24 @@
+/* =========================================================
+   Google Fonts
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
 @import "tailwindcss";
 
-/* Reset */
+/* =========================================================
+   Reset
+========================================================= */
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
+/* =========================================================
+   Root
+========================================================= */
 
 html,
 body,
@@ -15,17 +27,29 @@ body,
   height: 100%;
 }
 
+/* =========================================================
+   Body
+========================================================= */
+
 body {
-  font-family: "Inter", sans-serif;
-  background: #F5F7FC;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  background: #f5f7fc;
+
   color: #111827;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Smooth rendering */
+/* =========================================================
+   Form Elements
+========================================================= */
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
@@ -34,20 +58,46 @@ button {
 }
 
 input,
-select {
+select,
+textarea {
   outline: none;
 }
 
-/* Smooth transitions */
+/* =========================================================
+   Smooth Transitions
+========================================================= */
 
-* {
-  transition: all 0.2s ease;
+/*
+  Do NOT use:
+  
+  * {
+    transition: all 0.2s ease;
+  }
+
+  because it causes every element on the page to animate,
+  including layout, width, height, charts, etc.
+*/
+
+button,
+a,
+input,
+select,
+textarea {
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* Custom Scrollbar */
+/* =========================================================
+   Custom Scrollbar
+========================================================= */
 
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {

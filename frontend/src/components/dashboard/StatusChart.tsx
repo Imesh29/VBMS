@@ -1,56 +1,74 @@
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-const data = [
-  { name: "Approved", value: 60 },
-  { name: "Pending", value: 25 },
-  { name: "Rejected", value: 15 },
+const PIE_DATA = [
+  { name: "Pending", value: 3, color: "#F59E0B" },
+  { name: "Approved", value: 2, color: "#3B82F6" },
+  { name: "Confirmed", value: 1, color: "#10B981" },
+  { name: "Completed", value: 1, color: "#94A3B8" },
+  { name: "Cancelled", value: 1, color: "#EF4444" },
 ];
-
-const COLORS = ["#22C55E", "#FACC15", "#EF4444"];
 
 export default function StatusChart() {
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 h-full">
+    <div
+      className="h-full bg-white rounded-2xl p-6 border border-black/5 shadow-sm"
+      style={{
+        marginTop: "15px",
+        marginBottom: "15px",
+        padding: "20px",
+      }}
+    >
+      <h3
+        className="text-lg font-bold text-[#1C1C2E] mb-0.5"
+        style={{ fontFamily: "Outfit, sans-serif" }}
+      >
+        Status Breakdown
+      </h3>
+      <p className="text-sm text-gray-400 mb-4">Current period</p>
 
-      <h2 className="text-xl font-bold text-gray-800">
-        Booking Status
-      </h2>
-
-      <p className="text-sm text-gray-500 mb-6">
-        Current booking distribution
-      </p>
-
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={220}>
         <PieChart>
-
           <Pie
-            data={data}
+            data={PIE_DATA}
+            cx="50%"
+            cy="50%"
+            innerRadius={62}
+            outerRadius={94}
+            paddingAngle={3}
             dataKey="value"
-            nameKey="name"
-            outerRadius={90}
-            label
+            startAngle={90}
+            endAngle={-270}
           >
-            {data.map((_, index) => (
-              <Cell
-                key={index}
-                fill={COLORS[index]}
-              />
+            {PIE_DATA.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
             ))}
           </Pie>
 
-          <Tooltip />
-          <Legend />
-
+          <Tooltip
+            contentStyle={{
+              borderRadius: 10,
+              border: "none",
+              fontSize: 13,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
 
+      <div className="space-y-2.5 mt-2">
+        {PIE_DATA.map((d) => (
+          <div key={d.name} className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span
+                className="w-3 h-3 rounded-full shrink-0"
+                style={{ background: d.color }}
+              />
+              <span className="text-sm text-gray-600">{d.name}</span>
+            </div>
+            <span className="text-sm font-bold text-[#1C1C2E]">{d.value}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

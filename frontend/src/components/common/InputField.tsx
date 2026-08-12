@@ -28,7 +28,29 @@ export default function InputField({
   disabled = false,
 }: InputFieldProps) {
   return (
-    <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 transition focus-within:border-[#5B1E1D] focus-within:ring-4 focus-within:ring-[#5B1E1D]/10">
+    <div
+      className="
+        flex
+        h-[50px]
+        w-full
+        items-center
+
+        rounded-xl
+
+        border
+        border-gray-200
+
+        bg-gray-50
+
+        px-4
+
+        transition
+
+        focus-within:border-[#5B1E1D]
+        focus-within:ring-4
+        focus-within:ring-[#5B1E1D]/10
+      "
+    >
       <span className="mr-3 text-gray-400">{icon}</span>
 
       <input
@@ -38,10 +60,24 @@ export default function InputField({
         value={value}
         onChange={onChange}
         disabled={disabled}
-        className="flex-1 bg-transparent text-gray-700 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed disabled:opacity-60"
+        className="
+          min-w-0
+          flex-1
+
+          bg-transparent
+
+          text-gray-700
+
+          outline-none
+
+          placeholder:text-gray-400
+
+          disabled:cursor-not-allowed
+          disabled:opacity-60
+        "
       />
 
-      {rightIcon && <span className="text-gray-400">{rightIcon}</span>}
+      {rightIcon && <span className="ml-3 text-gray-400">{rightIcon}</span>}
     </div>
   );
 }
