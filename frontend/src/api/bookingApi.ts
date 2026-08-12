@@ -1,7 +1,27 @@
 import api from "./axios";
 
-export const getBookings = async () => {
-  const response = await api.get("/bookings");
+export interface GetBookingsParams {
+  status?: string;
+  vehicle?: string;
+  date?: string;
+  page?: number;
+  limit?: number;
+  sort?:
+    | "created_at"
+    | "departure_date"
+    | "return_date"
+    | "status"
+    | "booking_reference";
+  order?: "ASC" | "DESC";
+}
+
+/**
+ * Get bookings for the logged-in user (USER role only).
+ * Supports filtering, pagination and sorting.
+ * GET /api/bookings
+ */
+export const getBookings = async (params?: GetBookingsParams) => {
+  const response = await api.get("/bookings", { params });
   return response.data;
 };
 

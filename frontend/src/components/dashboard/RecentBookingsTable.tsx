@@ -1,3 +1,5 @@
+import type { NormalizedBooking } from "../../types/dashboard";
+
 const STATUS_STYLES: Record<
   string,
   { bg: string; text: string; border: string; dot: string }
@@ -34,57 +36,10 @@ const STATUS_STYLES: Record<
   },
 };
 
-const bookings = [
-  {
-    id: "BK-2024-001",
-    vehicle: "Toyota HiAce",
-    requester: "Amirah Zainudin",
-    department: "Computer Science",
-    destination: "KLCC Conference Centre",
-    date: "2024-06-10",
-    status: "Completed",
-  },
-  {
-    id: "BK-2024-002",
-    vehicle: "Toyota Fortuner",
-    requester: "Hamdan Malik",
-    department: "Engineering",
-    destination: "UTM Johor Bahru",
-    date: "2024-06-15",
-    status: "Confirmed",
-  },
-  {
-    id: "BK-2024-003",
-    vehicle: "Toyota Alphard",
-    requester: "Nurul Hafizah",
-    department: "Business Admin",
-    destination: "Ministry of Education, Putrajaya",
-    date: "2024-06-18",
-    status: "Approved",
-  },
-  {
-    id: "BK-2024-004",
-    vehicle: "Nissan Urvan",
-    requester: "Syukri Osman",
-    department: "Medicine",
-    destination: "Hospital Kuala Lumpur",
-    date: "2024-06-20",
-    status: "Pending",
-  },
-  {
-    id: "BK-2024-005",
-    vehicle: "Toyota Camry",
-    requester: "Amirah Zainudin",
-    department: "Computer Science",
-    destination: "Cyberjaya Technology Park",
-    date: "2024-06-22",
-    status: "Pending",
-  },
-];
-
 function initials(name: string) {
   return name
     .split(" ")
+    .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
     .join("")
@@ -104,7 +59,19 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function RecentBookingsTable() {
+interface RecentBookingsTableProps {
+  title?: string;
+  bookings: NormalizedBooking[];
+  loading?: boolean;
+  error?: string | null;
+}
+
+export default function RecentBookingsTable({
+  title = "Recent Bookings",
+  bookings,
+  loading,
+  error,
+}: RecentBookingsTableProps) {
   return (
     <div
       className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden"
@@ -118,12 +85,8 @@ export default function RecentBookingsTable() {
           className="text-lg font-bold text-[#1C1C2E]"
           style={{ fontFamily: "Outfit, sans-serif" }}
         >
-          Recent Bookings
+          {title}
         </h3>
-
-        <button className="text-sm text-[#4C1D1D] font-semibold hover:underline">
-          View all &rarr;
-        </button>
       </div>
 
       <div className="overflow-x-auto">
@@ -148,54 +111,83 @@ export default function RecentBookingsTable() {
           </thead>
 
           <tbody className="divide-y divide-gray-50">
-            {bookings.map((booking) => (
-              <tr
-                key={booking.id}
-                className="hover:bg-gray-50/40 transition-colors"
-              >
-                <td className="px-6 py-4">
-                  <p className="text-sm font-bold text-[#4C1D1D]">
-                    {booking.id}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {booking.vehicle}
-                  </p>
-                </td>
-
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#4C1D1D] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                      {initials(booking.requester)}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-[#1C1C2E] truncate">
-                        {booking.requester}
-                      </p>
-                      <p className="text-xs text-gray-400 truncate">
-                        {booking.department}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                <td className="px-6 py-4 max-w-[200px]">
-                  <p className="text-sm text-gray-700 truncate">
-                    {booking.destination}
-                  </p>
-                </td>
-
-                <td className="px-6 py-4">
-                  <p className="text-sm text-gray-600 whitespace-nowrap">
-                    {booking.date}
-                  </p>
-                </td>
-
-                <td className="px-6 py-4">
-                  <StatusBadge status={booking.status} />
+            {loading ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-6 py-10 text-center text-sm text-gray-400"
+                >
+                  Loading bookings…
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-6 py-10 text-center text-sm text-red-500"
+                >
+                  {error}
+                </td>
+              </tr>
+            ) : bookings.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-6 py-10 text-center text-sm text-gray-400"
+                >
+                  No bookings to show.
+                </td>
+              </tr>
+            ) : (
+              bookings.map((booking) => (
+                <tr
+                  key={booking.id}
+                  className="hover:bg-gray-50/40 transition-colors"
+                >
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold text-[#4C1D1D]">
+                      {booking.bookingReference}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {booking.vehicle}
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#4C1D1D] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        {initials(booking.requester)}
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[#1C1C2E] truncate">
+                          {booking.requester}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {booking.department}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 max-w-[200px]">
+                    <p className="text-sm text-gray-700 truncate">
+                      {booking.destination}
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-600 whitespace-nowrap">
+                      {booking.date}
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <StatusBadge status={booking.status} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
