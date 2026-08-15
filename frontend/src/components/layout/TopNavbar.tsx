@@ -1,96 +1,107 @@
-import {
-  FaBell,
-  FaSearch,
-  FaUserCircle,
-} from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 
 export default function TopNavbar() {
-  const today = new Date();
-
   return (
-    <header className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
-
-      {/* Left */}
-
+    <header
+      className="
+        flex
+        h-[80px]
+        shrink-0
+        items-center
+        justify-between
+        border-b
+        border-slate-200
+        bg-white
+        px-7
+      "
+    >
+      {/* Page title */}
       <div>
-
-        <h1 className="text-2xl font-bold text-gray-800">
-          Dashboard
+        <h1 className="text-lg font-bold text-slate-900">
+          Bookings
         </h1>
 
-        <p className="text-sm text-gray-500">
-          Overview of your vehicle booking system
+        <p className="mt-1 text-sm text-slate-400">
+          Manage and track all booking requests
         </p>
-
       </div>
 
-      {/* Right */}
-
-      <div className="flex items-center gap-6">
-
-        {/* Search */}
-
-        <div className="relative">
-
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-72 rounded-xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 outline-none focus:border-[#5B1E1D]"
-          />
-
-        </div>
+      {/* User area */}
+      <div className="flex items-center gap-5">
 
         {/* Notification */}
+        <button
+          type="button"
+          title="Notifications"
+          aria-label="Notifications"
+          className="
+            relative
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-full
+            bg-slate-50
+            text-slate-500
+            transition
+            hover:bg-slate-100
+          "
+        >
+          <FaBell size={14} />
 
-        <button className="relative h-11 w-11 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
-
-          <FaBell />
-
-          <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500"></span>
-
+          {/* Notification indicator */}
+          <span
+            className="
+              absolute
+              right-2
+              top-2
+              h-2
+              w-2
+              rounded-full
+              bg-[#5B1E1D]
+            "
+          />
         </button>
 
-        {/* Date */}
+        {/* Divider */}
+        <div className="h-8 w-px bg-slate-200" />
 
-        <div className="hidden md:block text-right">
-
-          <p className="text-xs text-gray-500">
-            TODAY
-          </p>
-
-          <p className="font-semibold">
-            {today.toLocaleDateString()}
-          </p>
-
-        </div>
-
-        {/* Profile */}
-
+        {/* User */}
         <div className="flex items-center gap-3">
 
-          <FaUserCircle
-            size={42}
-            className="text-[#5B1E1D]"
-          />
+          {/* Avatar */}
+          <div
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-full
+              bg-[#5B1E1D]
+              text-xs
+              font-bold
+              text-white
+            "
+          >
+            AZ
+          </div>
 
+          {/* User information */}
           <div>
-
-            <h3 className="font-semibold">
-              Admin User
-            </h3>
-
-            <p className="text-sm text-gray-500">
-              Vehicle Administrator
+            <p className="text-sm font-semibold text-slate-800">
+              Dr. Amirah
             </p>
 
+            <p className="text-xs text-slate-400">
+              Staff
+            </p>
           </div>
 
         </div>
 
       </div>
-
     </header>
   );
 }
