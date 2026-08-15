@@ -1,136 +1,184 @@
-import { FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import {
+  FaEye,
+  FaTrash,
+} from "react-icons/fa";
 
-const bookings = [
-  {
-    id: "BK001",
-    requester: "John Silva",
-    vehicle: "Toyota Prius",
-    date: "2026-07-20",
-    destination: "Colombo",
-    status: "Approved",
-  },
-  {
-    id: "BK002",
-    requester: "Kasun Perera",
-    vehicle: "Toyota Hiace",
-    date: "2026-07-22",
-    destination: "Galle",
-    status: "Pending",
-  },
-  {
-    id: "BK003",
-    requester: "Nimal Fernando",
-    vehicle: "Nissan Caravan",
-    date: "2026-07-23",
-    destination: "Kandy",
-    status: "Rejected",
-  },
-];
+import type { Booking } from "../../data/bookingData";
+import StatusBadge from "./StatusBadge";
 
-export default function BookingTable() {
-  const statusColor = (status: string) => {
-    switch (status) {
-      case "Approved":
-        return "bg-green-100 text-green-700";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-700";
-      case "Rejected":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100";
-    }
-  };
+interface BookingTableProps {
+  bookings: Booking[];
+}
 
+export default function BookingTable({
+  bookings,
+}: BookingTableProps) {
   return (
-    <div className="bg-white rounded-2xl shadow p-6">
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[1050px] border-collapse">
 
-      <div className="flex justify-between mb-5">
-
-        <input
-          type="text"
-          placeholder="Search booking..."
-          className="border rounded-lg px-4 py-2 w-72"
-        />
-
-      </div>
-
-      <table className="w-full">
-
+        {/* Header */}
         <thead>
+          <tr className="border-b border-slate-100 bg-slate-50/70">
 
-          <tr className="border-b">
+            <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+              Ref No.
+            </th>
 
-            <th className="text-left py-3">Booking ID</th>
-            <th className="text-left">Requester</th>
-            <th className="text-left">Vehicle</th>
-            <th className="text-left">Date</th>
-            <th className="text-left">Destination</th>
-            <th className="text-left">Status</th>
-            <th className="text-center">Actions</th>
+            <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+              Vehicle
+            </th>
+
+            <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+              Destination
+            </th>
+
+            <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+              Departure
+            </th>
+
+            <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+              Pax
+            </th>
+
+            <th className="px-6 py-4 text-left text-xs font-medium uppercase tracking-wide text-slate-400">
+              Status
+            </th>
+
+            <th className="px-6 py-4 text-center text-xs font-medium uppercase tracking-wide text-slate-400">
+              Actions
+            </th>
 
           </tr>
-
         </thead>
 
+        {/* Body */}
         <tbody>
-
-          {bookings.map((booking) => (
-
-            <tr
-              key={booking.id}
-              className="border-b hover:bg-gray-50"
-            >
-
-              <td className="py-4">{booking.id}</td>
-
-              <td>{booking.requester}</td>
-
-              <td>{booking.vehicle}</td>
-
-              <td>{booking.date}</td>
-
-              <td>{booking.destination}</td>
-
-              <td>
-
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${statusColor(
-                    booking.status
-                  )}`}
-                >
-                  {booking.status}
-                </span>
-
+          {bookings.length === 0 ? (
+            <tr>
+              <td
+                colSpan={7}
+                className="px-6 py-12 text-center text-sm text-slate-400"
+              >
+                No bookings found.
               </td>
-
-              <td>
-
-                <div className="flex justify-center gap-4">
-
-                  <button className="text-blue-600">
-                    <FaEye />
-                  </button>
-
-                  <button className="text-green-600">
-                    <FaEdit />
-                  </button>
-
-                  <button className="text-red-600">
-                    <FaTrash />
-                  </button>
-
-                </div>
-
-              </td>
-
             </tr>
+          ) : (
+            bookings.map((booking) => (
+              <tr
+                key={booking.id}
+                className="
+                  border-b
+                  border-slate-100
+                  last:border-b-0
+                  hover:bg-slate-50/50
+                  transition
+                "
+              >
 
-          ))}
+                {/* Reference */}
+                <td className="px-6 py-5">
+                  <div className="font-semibold text-sm text-slate-800">
+                    {booking.id}
+                  </div>
 
+                  <div className="mt-1 text-xs text-slate-400">
+                    {booking.requestDate}
+                  </div>
+                </td>
+
+                {/* Vehicle */}
+                <td className="px-6 py-5">
+                  <div className="text-sm font-medium text-slate-800">
+                    {booking.vehicle}
+                  </div>
+
+                  <div className="mt-1 text-xs text-slate-400">
+                    {booking.vehicleNumber}
+                  </div>
+                </td>
+
+                {/* Destination */}
+                <td className="px-6 py-5">
+                  <div className="text-sm text-slate-700">
+                    {booking.destination}
+                  </div>
+
+                  <div className="mt-1 text-xs text-slate-400">
+                    {booking.purpose}
+                  </div>
+                </td>
+
+                {/* Departure */}
+                <td className="px-6 py-5">
+                  <div className="text-sm text-slate-700">
+                    {booking.departureDate}
+                  </div>
+
+                  <div className="mt-1 text-xs text-slate-400">
+                    {booking.departureTime}
+                  </div>
+                </td>
+
+                {/* Pax */}
+                <td className="px-6 py-5 text-sm font-medium text-slate-700">
+                  {booking.pax}
+                </td>
+
+                {/* Status */}
+                <td className="px-6 py-5">
+                  <StatusBadge status={booking.status} />
+                </td>
+
+                {/* Actions */}
+                <td className="px-6 py-5">
+                  <div className="flex justify-center gap-4">
+
+                    <button
+                      type="button"
+                      title="View booking"
+                      className="
+                        text-slate-400
+                        transition
+                        hover:text-[#5B1E1D]
+                      "
+                      onClick={() =>
+                        console.log(
+                          "View:",
+                          booking.id
+                        )
+                      }
+                    >
+                      <FaEye size={15} />
+                    </button>
+
+                    <button
+                      type="button"
+                      title="Delete booking"
+                      className="
+                        text-slate-400
+                        transition
+                        hover:text-red-500
+                      "
+                      onClick={() =>
+                        console.log(
+                          "Delete:",
+                          booking.id
+                        )
+                      }
+                    >
+                      <FaTrash size={14} />
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+            ))
+          )}
         </tbody>
 
       </table>
-
     </div>
   );
 }
