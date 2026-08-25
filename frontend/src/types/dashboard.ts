@@ -22,10 +22,8 @@ export interface UserDashboardData extends BookingStatusCounts {
  * GET /api/dashboard/dean
  * Note: the pending count is keyed "pending_approvals" for this role.
  */
-export interface DeanDashboardData extends Omit<
-  BookingStatusCounts,
-  "pending_bookings"
-> {
+export interface DeanDashboardData
+  extends Omit<BookingStatusCounts, "pending_bookings"> {
   pending_approvals: string;
 }
 
