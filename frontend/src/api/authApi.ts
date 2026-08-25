@@ -47,11 +47,29 @@ export const login = async (
   return response.data.data;
 };
 
+export interface UpdateProfileRequest {
+  fullName?: string;
+  email?: string;
+  department?: string;
+  password?: string;
+}
+
 /**
  * Get current user's profile.
  */
 export const getProfile = async (): Promise<AuthUser> => {
   const response = await api.get("/auth/profile");
+
+  return response.data.data;
+};
+
+/**
+ * Update the logged-in user's own profile.
+ */
+export const updateProfile = async (
+  payload: UpdateProfileRequest,
+): Promise<AuthUser> => {
+  const response = await api.put("/auth/profile", payload);
 
   return response.data.data;
 };
