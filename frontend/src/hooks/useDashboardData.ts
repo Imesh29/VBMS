@@ -48,7 +48,9 @@ export function useDashboardData(): UseDashboardDataResult {
   const role = user?.role;
 
   const [data, setData] = useState<RoleDashboardData>(null);
-  const [recentBookings, setRecentBookings] = useState<NormalizedBooking[]>([]);
+  const [recentBookings, setRecentBookings] = useState<NormalizedBooking[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
@@ -107,7 +109,9 @@ export function useDashboardData(): UseDashboardDataResult {
           setData(stats);
 
           const items = bookings?.data?.items ?? [];
-          setRecentBookings(items.map((item: any) => mapMyBooking(item, user)));
+          setRecentBookings(
+            items.map((item: any) => mapMyBooking(item, user)),
+          );
         }
       } catch (err: any) {
         if (!cancelled) {
@@ -135,9 +139,7 @@ export function useDashboardData(): UseDashboardDataResult {
 
   const totalBookings =
     data && "total_bookings" in data
-      ? toNumber(
-          (data as UserDashboardData | AdminDashboardData).total_bookings,
-        )
+      ? toNumber((data as UserDashboardData | AdminDashboardData).total_bookings)
       : statusBreakdown.reduce((sum, s) => sum + s.value, 0);
 
   const recentBookingsTitle =
