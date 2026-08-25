@@ -113,28 +113,19 @@ export default function RecentBookingsTable({
           <tbody className="divide-y divide-gray-50">
             {loading ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-10 text-center text-sm text-gray-400"
-                >
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
                   Loading bookings…
                 </td>
               </tr>
             ) : error ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-10 text-center text-sm text-red-500"
-                >
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-red-500">
                   {error}
                 </td>
               </tr>
             ) : bookings.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-10 text-center text-sm text-gray-400"
-                >
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
                   No bookings to show.
                 </td>
               </tr>
