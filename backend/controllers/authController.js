@@ -67,6 +67,34 @@ export const getProfile = async (req, res, next) => {
   }
 };
 
+export const updateProfile = async (req, res, next) => {
+  try {
+    const validationErrors = validationResult(req);
+
+    if (!validationErrors.isEmpty()) {
+      return errorResponse(
+        res,
+        400,
+        "Validation failed",
+        validationErrors.array(),
+      );
+    }
+
+    const { fullName, email, department, password } = req.body;
+
+    const updated = await authService.updateProfile(req.user.id, {
+      fullName,
+      email,
+      department,
+      password,
+    });
+
+    return successResponse(res, 200, "Profile updated successfully", updated);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const logout = async (req, res, next) => {
   try {
     const result = await authService.logoutUser();

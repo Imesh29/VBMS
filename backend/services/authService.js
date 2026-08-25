@@ -86,6 +86,65 @@ export const getUserProfile = async (userId) => {
   };
 };
 
+export const updateProfile = async (
+  userId,
+  { fullName, email, department, password },
+) => {
+  const existingUser = await authRepository.findUserById(userId);
+
+  if (!existingUser) {
+    throw createError("User not found", 404);
+  }
+
+  const fields = {};
+
+  if (fullName !== undefined) {
+    fields.full_name = fullName.trim();
+  }
+
+  if (email !== undefined) {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    if (normalizedEmail !== existingUser.email) {
+      const emailOwner = await authRepository.findUserByEmail(normalizedEmail);
+
+      if (emailOwner && emailOwner.id !== userId) {
+        throw createError("A user with this email already exists", 409);
+      }
+    }
+
+    fields.email = normalizedEmail;
+  }
+
+  if (department !== undefined) {
+    fields.department = department ? department.trim() : null;
+  }
+
+  if (password) {
+    fields.password = await hashPassword(password);
+  }
+
+  if (Object.keys(fields).length === 0) {
+    return {
+      id: existingUser.id,
+      fullName: existingUser.full_name,
+      email: existingUser.email,
+      role: existingUser.role,
+      department: existingUser.department,
+    };
+  }
+
+  const updated = await authRepository.updateUser(userId, fields);
+
+  return {
+    id: updated.id,
+    fullName: updated.full_name,
+    email: updated.email,
+    role: updated.role,
+    department: updated.department,
+  };
+};
+
 export const logoutUser = async () => {
   return {
     message: "Logout successful",

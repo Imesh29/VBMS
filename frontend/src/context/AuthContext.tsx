@@ -3,7 +3,9 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import {
   login as loginApi,
   logout as logoutApi,
+  updateProfile as updateProfileApi,
   type AuthUser,
+  type UpdateProfileRequest,
 } from "../api/authApi";
 
 interface AuthContextType {
@@ -15,6 +17,8 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<AuthUser>;
 
   logout: () => Promise<void>;
+
+  updateProfile: (payload: UpdateProfileRequest) => Promise<AuthUser>;
 
   clearSession: () => void;
 }
@@ -79,6 +83,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const updateProfile = async (
+    payload: UpdateProfileRequest,
+  ): Promise<AuthUser> => {
+    const updated = await updateProfileApi(payload);
+
+    localStorage.setItem("user", JSON.stringify(updated));
+    setUser(updated);
+
+    return updated;
+  };
+
   const clearSession = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -96,6 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         isLoading,
         login,
         logout,
+        updateProfile,
         clearSession,
       }}
     >

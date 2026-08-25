@@ -76,7 +76,9 @@ export default function StatusChart({ data, loading }: StatusChartProps) {
               />
               <span className="text-sm text-gray-600">{d.name}</span>
             </div>
-            <span className="text-sm font-bold text-[#1C1C2E]">{d.value}</span>
+            <span className="text-sm font-bold text-[#1C1C2E]">
+              {d.value}
+            </span>
           </div>
         ))}
       </div>

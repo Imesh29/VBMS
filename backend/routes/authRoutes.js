@@ -46,11 +46,48 @@ const loginValidation = [
   body("password").notEmpty().withMessage("Password is required"),
 ];
 
+const updateProfileValidation = [
+  body("fullName")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Full name cannot be empty")
+    .isLength({ min: 2, max: 100 })
+    .withMessage("Full name must be between 2 and 100 characters"),
+
+  body("email")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("Email cannot be empty")
+    .isEmail()
+    .withMessage("Please provide a valid email address")
+    .normalizeEmail(),
+
+  body("department")
+    .optional({ checkFalsy: true })
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Department cannot exceed 100 characters"),
+
+  body("password")
+    .optional({ checkFalsy: true })
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long"),
+];
+
 router.post("/register", registerValidation, authController.register);
 
 router.post("/login", loginValidation, authController.login);
 
 router.get("/profile", authenticate, authController.getProfile);
+
+router.put(
+  "/profile",
+  authenticate,
+  updateProfileValidation,
+  authController.updateProfile,
+);
 
 router.post("/logout", authenticate, authController.logout);
 

@@ -11,21 +11,7 @@ import {
 } from "react-icons/fa";
 
 import { register } from "../../api/authApi";
-
-/* =========================================================
-   Department Options
-========================================================= */
-
-const DEPARTMENTS = [
-  "Computer Science",
-  "Engineering",
-  "Business Administration",
-  "Medicine",
-  "Education",
-  "Law",
-  "Architecture",
-  "Science & Technology",
-];
+import { DEPARTMENTS } from "../../constants/departments";
 
 /* =========================================================
    Reusable Input Field Props

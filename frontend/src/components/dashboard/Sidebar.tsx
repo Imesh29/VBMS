@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaCalendarCheck,
@@ -12,20 +13,50 @@ import {
 
 import { useAuth } from "../../context/AuthContext";
 
-const NAV_ITEMS = [
+/**
+ * `path: null` means the page doesn't exist yet — the item renders
+ * disabled instead of navigating to a dead route.
+ */
+const NAV_ITEMS: {
+  id: string;
+  label: string;
+  icon: ReactElement;
+  path: string | null;
+  roles?: Array<"USER" | "DEAN" | "ADMIN">;
+}[] = [
   {
     id: "dashboard",
     label: "Dashboard",
     icon: <FaTachometerAlt className="text-lg" />,
+    path: "/dashboard",
   },
   {
     id: "bookings",
     label: "Bookings",
     icon: <FaCalendarCheck className="text-lg" />,
+    path: null,
   },
-  { id: "vehicles", label: "Vehicles", icon: <FaCar className="text-lg" /> },
-  { id: "users", label: "Users", icon: <FaUsers className="text-lg" /> },
-  { id: "reports", label: "Reports", icon: <FaFileAlt className="text-lg" /> },
+  {
+    id: "vehicles",
+    label: "Vehicles",
+    icon: <FaCar className="text-lg" />,
+    path: "/vehicles",
+    roles: ["ADMIN"],
+  },
+  {
+    id: "users",
+    label: "Users",
+    icon: <FaUsers className="text-lg" />,
+    path: "/users",
+    roles: ["ADMIN"],
+  },
+  {
+    id: "reports",
+    label: "Reports",
+    icon: <FaFileAlt className="text-lg" />,
+    path: "/reports",
+    roles: ["ADMIN", "DEAN"],
+  },
 ];
 
 function initials(name: string) {
@@ -40,7 +71,12 @@ function initials(name: string) {
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
-  const [active, setActive] = useState("dashboard");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.roles || (user?.role && item.roles.includes(user.role)),
+  );
 
   const displayName = user?.fullName || "User";
   const roleLabel =
@@ -141,16 +177,27 @@ export default function Sidebar() {
           </p>
         )}
 
-        {NAV_ITEMS.map((item) => {
-          const isActive = active === item.id;
+        {visibleNavItems.map((item) => {
+          const isActive = item.path
+            ? location.pathname.startsWith(item.path)
+            : false;
+          const isDisabled = !item.path;
 
           return (
             <button
               key={item.id}
-              onClick={() => setActive(item.id)}
-              title={collapsed ? item.label : undefined}
+              onClick={() => item.path && navigate(item.path)}
+              disabled={isDisabled}
+              title={
+                isDisabled
+                  ? "Coming soon"
+                  : collapsed
+                    ? item.label
+                    : undefined
+              }
               className={`w-full flex items-center gap-3.5 rounded-xl transition-all duration-150 text-left
                 ${collapsed ? "justify-center px-0 py-3.5" : "px-4 py-3.5"}
+                ${isDisabled ? "opacity-40 cursor-not-allowed" : ""}
                 ${
                   isActive
                     ? "bg-white/[0.15] text-white"
