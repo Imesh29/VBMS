@@ -8,8 +8,7 @@ import {
   FaClipboardList,
 } from "react-icons/fa";
 
-import TopNavbar from "./TopNavbar";
-import Sidebar from "../dashboard/Sidebar";
+import AppShell from "./AppShell";
 import WelcomeBanner from "../dashboard/WelcomeBanner";
 import StatsCard from "../dashboard/StatsCard";
 import BookingChart from "../dashboard/BookingChart";
@@ -162,81 +161,65 @@ export default function DashboardLayout() {
   const statCards = buildStatCards(user?.role, data);
 
   return (
-    <div className="h-screen w-full flex overflow-hidden bg-[#F5F7FC]">
-      {/* Sidebar */}
-      <Sidebar />
+    <AppShell
+      title="Dashboard"
+      subtitle="Overview of your vehicle booking system"
+    >
+      {/* Welcome Banner */}
+      <WelcomeBanner totalBookings={totalBookings} />
 
-      {/* Main Column */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Navigation */}
-        <TopNavbar />
+      {/* Error banner */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-5 py-3.5 flex items-center justify-between">
+          <span>{error}</span>
+          <button
+            onClick={refetch}
+            className="font-semibold hover:underline shrink-0 ml-4"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
-        {/* Scrollable Dashboard Content */}
-        <main
-          className="flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]"
-          style={{
-            padding: "15px",
-          }}
-        >
-          <div className="p-8 space-y-7 max-w-[1600px] mx-auto">
-            {/* Welcome Banner */}
-            <WelcomeBanner totalBookings={totalBookings} />
-
-            {/* Error banner */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-5 py-3.5 flex items-center justify-between">
-                <span>{error}</span>
-                <button
-                  onClick={refetch}
-                  className="font-semibold hover:underline shrink-0 ml-4"
-                >
-                  Retry
-                </button>
-              </div>
-            )}
-
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              {loading
-                ? Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="bg-white rounded-2xl p-6 shadow-sm border border-black/5 h-[160px] animate-pulse"
-                    />
-                  ))
-                : statCards.map((card) => (
-                    <StatsCard
-                      key={card.key}
-                      icon={card.icon}
-                      colorClass={card.colorClass}
-                      title={card.title}
-                      value={card.value}
-                      caption={card.caption}
-                    />
-                  ))}
-            </div>
-
-            {/* Charts row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-              <div className="lg:col-span-2 min-w-0">
-                <BookingChart data={statusBreakdown} loading={loading} />
-              </div>
-
-              <div className="min-w-0">
-                <StatusChart data={statusBreakdown} loading={loading} />
-              </div>
-            </div>
-
-            {/* Recent bookings */}
-            <RecentBookingsTable
-              title={recentBookingsTitle}
-              bookings={recentBookings}
-              loading={loading}
-              error={!loading ? error : null}
-            />
-          </div>
-        </main>
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {loading
+          ? Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-black/5 h-[160px] animate-pulse"
+              />
+            ))
+          : statCards.map((card) => (
+              <StatsCard
+                key={card.key}
+                icon={card.icon}
+                colorClass={card.colorClass}
+                title={card.title}
+                value={card.value}
+                caption={card.caption}
+              />
+            ))}
       </div>
-    </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        <div className="lg:col-span-2 min-w-0">
+          <BookingChart data={statusBreakdown} loading={loading} />
+        </div>
+
+        <div className="min-w-0">
+          <StatusChart data={statusBreakdown} loading={loading} />
+        </div>
+      </div>
+
+      {/* Recent bookings */}
+      <RecentBookingsTable
+        title={recentBookingsTitle}
+        bookings={recentBookings}
+        loading={loading}
+        error={!loading ? error : null}
+      />
+    </AppShell>
   );
 }
