@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { FaEye, FaEyeSlash, FaExclamationCircle, FaCheck } from "react-icons/fa";
+import {
+  FaEye,
+  FaEyeSlash,
+  FaExclamationCircle,
+  FaCheck,
+} from "react-icons/fa";
 
 import SlidePanel from "../common/SlidePanel";
 import { useAuth } from "../../context/AuthContext";
@@ -35,11 +40,13 @@ function initials(name: string) {
 }
 
 const inputCls =
-  "w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4C1D1D]/15 focus:border-[#4C1D1D]/40 focus:bg-white transition-all placeholder:text-gray-400";
+  "h-12 w-full rounded-[18px] border border-[#E1E4EA] bg-[#FAFBFC] px-4 text-[15px] text-[#202234] outline-none transition-all placeholder:text-[#A4ACBC] hover:border-[#D5D9E1] focus:border-[#4C1D1D]/45 focus:bg-white focus:ring-4 focus:ring-[#4C1D1D]/[0.07]";
 const inputErrCls =
-  "w-full text-sm bg-red-50/30 border border-red-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-400 transition-all placeholder:text-gray-400";
+  "h-12 w-full rounded-[18px] border border-red-300 bg-red-50/30 px-4 text-[15px] text-[#202234] outline-none transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-4 focus:ring-red-100";
 const labelCls =
-  "block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5";
+  "mb-2 block text-[12px] font-bold uppercase tracking-[0.025em] text-[#596579]";
+const sectionCls =
+  "text-[12px] font-bold uppercase tracking-[0.04em] text-[#9AA3B4]";
 
 export default function AccountPanel({ open, onClose }: AccountPanelProps) {
   const { user, updateProfile } = useAuth();
@@ -69,6 +76,7 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         confirmPassword: "",
       });
       setTouched({});
+      setShowPw(false);
       setSaved(false);
       setServerError(null);
     }
@@ -77,21 +85,27 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
   if (!user) return null;
 
   const errors: Partial<Record<keyof AccountForm, string>> = {};
-  if (touched.fullName && !form.fullName.trim())
+  if (touched.fullName && !form.fullName.trim()) {
     errors.fullName = "Name is required";
-  if (touched.email && !form.email.trim()) errors.email = "Email is required";
-  else if (touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+  }
+  if (touched.email && !form.email.trim()) {
+    errors.email = "Email is required";
+  } else if (touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = "Enter a valid email address";
-  if (touched.department && !form.department)
+  }
+  if (touched.department && !form.department) {
     errors.department = "Department is required";
-  if (touched.newPassword && form.newPassword && form.newPassword.length < 6)
+  }
+  if (touched.newPassword && form.newPassword && form.newPassword.length < 6) {
     errors.newPassword = "Password must be at least 6 characters";
+  }
   if (
     touched.confirmPassword &&
     form.newPassword &&
     form.newPassword !== form.confirmPassword
-  )
+  ) {
     errors.confirmPassword = "Passwords do not match";
+  }
 
   const canSave =
     form.fullName.trim() &&
@@ -105,6 +119,7 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
   function setF<K extends keyof AccountForm>(k: K, v: AccountForm[K]) {
     setForm((f) => ({ ...f, [k]: v }));
   }
+
   function touchF(k: keyof AccountForm) {
     setTouched((t) => ({ ...t, [k]: true }));
   }
@@ -117,6 +132,7 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
       newPassword: true,
       confirmPassword: !!form.newPassword,
     });
+
     if (!canSave) return;
 
     setSaving(true);
@@ -148,23 +164,29 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
       onClose={onClose}
       title="My Account"
       subtitle="Update your profile information and password"
+      panelClassName="sm:max-w-[540px]"
+      headerClassName="px-7 py-6 sm:px-8 sm:py-7"
+      contentClassName="px-7 py-6 sm:px-8 sm:py-7 space-y-0"
+      footerClassName="px-7 py-4 sm:px-8 sm:py-5"
       footer={
         saved ? (
-          <div className="flex items-center gap-2 text-emerald-600 font-semibold text-sm justify-center py-1">
-            <FaCheck className="w-3.5 h-3.5" /> Changes saved successfully
+          <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-semibold text-emerald-600">
+            <FaCheck className="h-3.5 w-3.5" /> Changes saved successfully
           </div>
         ) : (
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <button
+              type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-100 transition-colors"
+              className="h-12 rounded-[18px] border border-[#E0E4EA] bg-white text-sm font-semibold text-[#566174] transition-colors hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 py-2.5 bg-[#4C1D1D] text-white rounded-xl text-sm font-bold hover:bg-[#3A1515] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="flex h-12 items-center justify-center gap-2 rounded-[18px] bg-[#5A1E1E] text-sm font-bold text-white shadow-sm transition-all hover:bg-[#481717] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Saving…" : "Save Changes"}
             </button>
@@ -173,34 +195,40 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
       }
     >
       {serverError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-4 py-3">
+        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
           {serverError}
         </div>
       )}
 
-      {/* Identity strip */}
-      <div className="bg-[#4C1D1D]/[0.04] border border-[#4C1D1D]/10 rounded-xl p-4 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-[#4C1D1D] flex items-center justify-center text-white text-sm font-bold shrink-0">
+      {/* Identity card */}
+      <div
+        className="mb-5 flex min-h-[100px] items-center gap-4 rounded-[22px] border border-[#E7DDDD] bg-[#FCF9F9] px-5 py-5 sm:px-6"
+        style={{ padding: "15px", marginBottom: "20px" }}
+      >
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#641F1F] text-lg font-bold text-white shadow-sm">
           {initials(user.fullName)}
         </div>
+
         <div className="min-w-0">
-          <p className="text-sm font-bold text-[#1C1C2E] truncate">
+          <p className="truncate text-[16px] font-bold leading-6 text-[#242638]">
             {user.fullName}
           </p>
-          <p className="text-xs text-gray-500 truncate">{user.email}</p>
-          <span className="mt-1 inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#4C1D1D]/10 text-[#4C1D1D] uppercase tracking-wide">
+          <p className="mt-0.5 truncate text-[13px] leading-5 text-[#7B8496]">
+            {user.email}
+          </p>
+          <span className="mt-2 inline-flex rounded-full bg-[#EEE4E4] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#6B2B2B]">
             {ROLE_LABEL[user.role] || user.role}
           </span>
         </div>
       </div>
 
-      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider pt-1">
+      <p className={`${sectionCls} mb-5`} style={{ paddingBottom: "10px" }}>
         Profile Information
       </p>
 
       {/* Full Name */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-5" style={{ paddingBottom: "10px" }}>
+        <label className={labelCls} style={{ paddingBottom: "10px" }}>
           Full Name <span className="text-red-500">*</span>
         </label>
         <input
@@ -209,18 +237,19 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
           onBlur={() => touchF("fullName")}
           placeholder="Your full name"
           className={errors.fullName ? inputErrCls : inputCls}
+          style={{ padding: "5px" }}
         />
         {errors.fullName && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.fullName}
           </p>
         )}
       </div>
 
       {/* Email */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-5" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ paddingBottom: "10px" }}>
           Email Address <span className="text-red-500">*</span>
         </label>
         <input
@@ -230,49 +259,56 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
           onBlur={() => touchF("email")}
           placeholder="your@email.com"
           className={errors.email ? inputErrCls : inputCls}
+          style={{ padding: "5px" }}
         />
         {errors.email && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.email}
           </p>
         )}
       </div>
 
       {/* Department */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-7" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ paddingBottom: "10px" }}>
           Department <span className="text-red-500">*</span>
         </label>
         <select
           value={form.department}
           onChange={(e) => setF("department", e.target.value)}
           onBlur={() => touchF("department")}
-          className={errors.department ? inputErrCls : inputCls}
+          className={`${errors.department ? inputErrCls : inputCls} cursor-pointer`}
         >
           <option value="">Select department…</option>
           {DEPARTMENTS.map((d) => (
-            <option key={d}>{d}</option>
+            <option key={d} value={d}>
+              {d}
+            </option>
           ))}
         </select>
         {errors.department && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.department}
           </p>
         )}
       </div>
 
-      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider pt-2">
-        Change Password
-      </p>
-      <p className="text-xs text-gray-400 -mt-2">
-        Leave both fields blank to keep your current password.
-      </p>
+      <div className="mb-5" style={{ marginBottom: "10px" }}>
+        <p className={sectionCls} style={{ marginBottom: "10px" }}>
+          Change Password
+        </p>
+        <p className="mt-2 text-[12px] leading-5 text-[#9AA3B4]">
+          Leave both fields blank to keep your current password.
+        </p>
+      </div>
 
       {/* New Password */}
-      <div>
-        <label className={labelCls}>New Password</label>
+      <div className={form.newPassword ? "mb-5" : "mb-1"}>
+        <label className={labelCls} style={{ marginBottom: "10px" }}>
+          New Password
+        </label>
         <div className="relative">
           <input
             type={showPw ? "text" : "password"}
@@ -280,23 +316,25 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
             onChange={(e) => setF("newPassword", e.target.value)}
             onBlur={() => touchF("newPassword")}
             placeholder="Min. 6 characters"
-            className={(errors.newPassword ? inputErrCls : inputCls) + " pr-10"}
+            style={{ padding: "5px" }}
+            className={`${errors.newPassword ? inputErrCls : inputCls} pr-12`}
           />
           <button
             type="button"
             onClick={() => setShowPw((p) => !p)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            aria-label={showPw ? "Hide password" : "Show password"}
+            className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#A4ACBC] transition-colors hover:bg-gray-100 hover:text-gray-600"
           >
             {showPw ? (
-              <FaEyeSlash className="w-4 h-4" />
+              <FaEyeSlash className="h-4 w-4" />
             ) : (
-              <FaEye className="w-4 h-4" />
+              <FaEye className="h-4 w-4" />
             )}
           </button>
         </div>
         {errors.newPassword && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.newPassword}
           </p>
         )}
@@ -304,7 +342,7 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
 
       {/* Confirm Password */}
       {form.newPassword && (
-        <div>
+        <div className="pb-1">
           <label className={labelCls}>Confirm New Password</label>
           <input
             type={showPw ? "text" : "password"}
@@ -315,8 +353,8 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
             className={errors.confirmPassword ? inputErrCls : inputCls}
           />
           {errors.confirmPassword && (
-            <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-              <FaExclamationCircle className="w-3 h-3" />
+            <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+              <FaExclamationCircle className="h-3 w-3" />
               {errors.confirmPassword}
             </p>
           )}
