@@ -8,11 +8,18 @@ interface SlidePanelProps {
   subtitle?: string;
   footer?: ReactNode;
   children: ReactNode;
+  panelClassName?: string;
+  headerClassName?: string;
+  contentClassName?: string;
+  footerClassName?: string;
 }
 
 /**
  * Shared right-hand slide-in panel used for all "Add / Edit" forms
  * (Vehicles, Users, My Account). Click the backdrop or the X to close.
+ *
+ * Optional className props allow individual panels to tune spacing/width
+ * without changing the styling of every other slide panel in the app.
  */
 export default function SlidePanel({
   open,
@@ -21,48 +28,67 @@ export default function SlidePanel({
   subtitle,
   footer,
   children,
+  panelClassName = "",
+  headerClassName = "",
+  contentClassName = "",
+  footerClassName = "",
 }: SlidePanelProps) {
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-[3px]"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[460px] bg-white flex flex-col shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 shrink-0">
-          <div className="min-w-0">
+      <aside
+        className={`relative flex h-full w-full max-w-[460px] flex-col bg-white shadow-2xl ${panelClassName}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        style={{ padding: "20px" }}
+      >
+        <div
+          className={`flex shrink-0 items-start justify-between border-b border-gray-100 px-6 py-5 ${headerClassName}`}
+          style={{ paddingBottom: "15px" }}
+        >
+          <div className="min-w-0 pr-4">
             <h2
-              className="font-bold text-[#1C1C2E] text-base"
+              className="text-base font-bold text-[#1C1C2E]"
               style={{ fontFamily: "Outfit, sans-serif" }}
             >
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs text-gray-400 mt-0.5 truncate">
-                {subtitle}
-              </p>
+              <p className="mt-1 text-xs leading-5 text-gray-400">{subtitle}</p>
             )}
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors shrink-0"
+            aria-label="Close panel"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200 hover:text-gray-700"
           >
-            <FaTimes className="w-3.5 h-3.5 text-gray-600" />
+            <FaTimes className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">{children}</div>
+        <div
+          className={`flex-1 overflow-y-auto p-6 space-y-4 ${contentClassName}`}
+        >
+          {children}
+        </div>
 
         {footer && (
-          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
+          <div
+            className={`shrink-0 border-t border-gray-100 bg-white px-6 py-4 ${footerClassName}`}
+          >
             {footer}
           </div>
         )}
-      </div>
+      </aside>
     </div>
   );
 }
