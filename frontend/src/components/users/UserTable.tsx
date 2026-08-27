@@ -2,7 +2,12 @@ import { useState } from "react";
 import { FaSearch, FaPlusCircle, FaPen, FaTrash } from "react-icons/fa";
 
 import type { ManagedUser } from "../../types/user";
-import { ROLE_LABEL, ROLE_BADGE_STYLE, formatJoinDate, initials } from "../../utils/user";
+import {
+  ROLE_LABEL,
+  ROLE_BADGE_STYLE,
+  formatJoinDate,
+  initials,
+} from "../../utils/user";
 
 interface UserTableProps {
   users: ManagedUser[];
@@ -30,6 +35,7 @@ export default function UserTable({
 
   async function handleConfirmDelete(user: ManagedUser) {
     setDeletingId(user.id);
+
     try {
       await onDeleteUser(user);
     } finally {
@@ -39,171 +45,355 @@ export default function UserTable({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
-      {/* Search + Add */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4 p-6 border-b border-gray-50">
-        <div className="relative flex-1">
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 w-4 h-4" />
+    <div className="flex flex-col" style={{ gap: "22px" }}>
+      {/* Search + Add User */}
+      <div
+        className="flex flex-col lg:flex-row lg:items-center"
+        style={{ gap: "14px" }}
+      >
+        <div className="relative min-w-0 flex-1">
+          <FaSearch
+            className="absolute top-1/2 -translate-y-1/2 text-[#A7B0C0]"
+            style={{ left: "18px", width: "17px", height: "17px" }}
+          />
+
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by name, email, department..."
-            className="w-full bg-gray-50 border border-transparent focus:border-[#4C1D1D]/20 focus:bg-white rounded-xl pl-11 pr-4 py-3 text-sm text-gray-700 placeholder:text-gray-400 outline-none transition-colors"
+            className="w-full outline-none transition-all"
+            style={{
+              height: "54px",
+              borderRadius: "22px",
+              border: "1px solid #E5E8EE",
+              backgroundColor: "#FFFFFF",
+              padding: "0 18px 0 50px",
+              fontSize: "15px",
+              color: "#4B5563",
+            }}
           />
         </div>
 
         <button
+          type="button"
           onClick={onAddUser}
-          className="flex items-center gap-2 px-4 py-3 bg-[#4C1D1D] text-white rounded-xl text-sm font-bold hover:bg-[#3A1515] transition-colors shadow-sm shadow-[#4C1D1D]/20 whitespace-nowrap shrink-0"
+          className="flex shrink-0 items-center justify-center whitespace-nowrap font-bold text-white transition-colors"
+          style={{
+            height: "54px",
+            padding: "0 22px",
+            gap: "9px",
+            borderRadius: "22px",
+            backgroundColor: "#5A1E1E",
+            boxShadow: "0 4px 10px rgba(90, 30, 30, 0.14)",
+            fontSize: "14px",
+          }}
         >
-          <FaPlusCircle className="w-4 h-4" /> Add User
+          <FaPlusCircle style={{ width: "16px", height: "16px" }} />
+          Add User
         </button>
       </div>
 
-      <div className="px-6 py-3 border-b border-gray-50">
-        <p className="text-xs text-gray-400">
-          <span className="font-bold text-[#1C1C2E]">{users.length}</span>{" "}
-          user{users.length !== 1 ? "s" : ""} found
-        </p>
-      </div>
+      {/* Data table card */}
+      <div
+        className="overflow-hidden bg-white"
+        style={{
+          borderRadius: "22px",
+          border: "1px solid #E7EAF0",
+          boxShadow: "0 2px 8px rgba(15, 23, 42, 0.035)",
+        }}
+      >
+        {/* Result count */}
+        <div
+          style={{
+            padding: "16px 24px",
+            borderBottom: "1px solid #F0F2F5",
+          }}
+        >
+          <p style={{ fontSize: "13px", color: "#98A2B3" }}>
+            <span className="font-bold" style={{ color: "#25283B" }}>
+              {users.length}
+            </span>{" "}
+            user{users.length !== 1 ? "s" : ""} found
+          </p>
+        </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50/60">
-              {[
-                "User",
-                "Email",
-                "Role",
-                "Department",
-                "Joined",
-                "Bookings",
-                "Status",
-                "Actions",
-              ].map((h) => (
-                <th
-                  key={h}
-                  className="text-left px-5 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody className="divide-y divide-gray-50">
-            {loading ? (
-              <tr>
-                <td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-400">
-                  Loading users…
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr style={{ backgroundColor: "#FBFCFD" }}>
+                {[
+                  "User",
+                  "Email",
+                  "Role",
+                  "Department",
+                  "Joined",
+                  "Bookings",
+                  "Status",
+                  "Actions",
+                ].map((heading) => (
+                  <th
+                    key={heading}
+                    className="whitespace-nowrap text-left font-semibold uppercase"
+                    style={{
+                      padding: "15px 24px",
+                      fontSize: "11px",
+                      letterSpacing: "0.06em",
+                      color: "#98A2B3",
+                    }}
+                  >
+                    {heading}
+                  </th>
+                ))}
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan={8} className="px-6 py-10 text-center text-sm text-red-500">
-                  {error}
-                </td>
-              </tr>
-            ) : users.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-6 py-10 text-center text-sm text-gray-400">
-                  No users match your search.
-                </td>
-              </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50/40 transition-colors">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-9 h-9 rounded-full bg-[#4C1D1D] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                        {initials(user.full_name)}
-                      </div>
-                      <span className="text-sm font-bold text-[#1C1C2E] whitespace-nowrap">
-                        {user.full_name}
-                      </span>
-                    </div>
-                  </td>
+            </thead>
 
-                  <td className="px-5 py-4 text-sm text-gray-500 whitespace-nowrap">
-                    {user.email}
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${ROLE_BADGE_STYLE[user.role]}`}
-                    >
-                      {ROLE_LABEL[user.role]}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4 text-sm text-gray-600 whitespace-nowrap">
-                    {user.department || "—"}
-                  </td>
-
-                  <td className="px-5 py-4 text-sm text-gray-500 whitespace-nowrap">
-                    {formatJoinDate(user.created_at)}
-                  </td>
-
-                  <td className="px-5 py-4 text-sm font-bold text-[#1C1C2E]">
-                    {user.bookings_count}
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${
-                        user.is_active
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {user.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    {deleteId === user.id ? (
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] text-gray-500 mr-0.5">Delete?</span>
-                        <button
-                          onClick={() => handleConfirmDelete(user)}
-                          disabled={deletingId === user.id}
-                          className="px-2 py-1 bg-red-600 text-white text-[10px] font-bold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-60"
-                        >
-                          {deletingId === user.id ? "…" : "Yes"}
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(null)}
-                          className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-semibold rounded-lg hover:bg-gray-200 transition-colors"
-                        >
-                          No
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => onEditUser(user)}
-                          className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-100 transition-colors"
-                          title="Edit"
-                        >
-                          <FaPen className="w-3 h-3" />
-                        </button>
-                        <button
-                          onClick={() => setDeleteId(user.id)}
-                          className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 transition-colors"
-                          title="Delete"
-                        >
-                          <FaTrash className="w-3 h-3" />
-                        </button>
-                      </div>
-                    )}
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    style={{
+                      padding: "44px 24px",
+                      textAlign: "center",
+                      color: "#98A2B3",
+                      fontSize: "14px",
+                    }}
+                  >
+                    Loading users…
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : error ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    style={{
+                      padding: "44px 24px",
+                      textAlign: "center",
+                      color: "#EF4444",
+                      fontSize: "14px",
+                    }}
+                  >
+                    {error}
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    style={{
+                      padding: "44px 24px",
+                      textAlign: "center",
+                      color: "#98A2B3",
+                      fontSize: "14px",
+                    }}
+                  >
+                    No users match your search.
+                  </td>
+                </tr>
+              ) : (
+                users.map((user) => (
+                  <tr
+                    key={user.id}
+                    className="transition-colors hover:bg-[#FCFCFD]"
+                    style={{ borderTop: "1px solid #F1F3F6" }}
+                  >
+                    {/* User */}
+                    <td style={{ padding: "18px 24px" }}>
+                      <div
+                        className="flex items-center"
+                        style={{ gap: "12px" }}
+                      >
+                        <div
+                          className="flex shrink-0 items-center justify-center rounded-full font-bold text-white"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            backgroundColor: "#5A1E1E",
+                            fontSize: "12px",
+                          }}
+                        >
+                          {initials(user.full_name)}
+                        </div>
+
+                        <span
+                          className="whitespace-nowrap font-bold"
+                          style={{ fontSize: "14px", color: "#1F2434" }}
+                        >
+                          {user.full_name}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Email */}
+                    <td
+                      className="whitespace-nowrap"
+                      style={{
+                        padding: "18px 24px",
+                        fontSize: "13px",
+                        color: "#667085",
+                      }}
+                    >
+                      {user.email}
+                    </td>
+
+                    {/* Role */}
+                    <td style={{ padding: "18px 24px" }}>
+                      <span
+                        className={`inline-flex items-center whitespace-nowrap rounded-full font-semibold ${ROLE_BADGE_STYLE[user.role]}`}
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {ROLE_LABEL[user.role]}
+                      </span>
+                    </td>
+
+                    {/* Department */}
+                    <td
+                      className="whitespace-nowrap"
+                      style={{
+                        padding: "18px 24px",
+                        fontSize: "13px",
+                        color: "#667085",
+                      }}
+                    >
+                      {user.department || "—"}
+                    </td>
+
+                    {/* Joined */}
+                    <td
+                      className="whitespace-nowrap"
+                      style={{
+                        padding: "18px 24px",
+                        fontSize: "13px",
+                        color: "#7C8799",
+                      }}
+                    >
+                      {formatJoinDate(user.created_at)}
+                    </td>
+
+                    {/* Bookings */}
+                    <td
+                      className="whitespace-nowrap font-bold"
+                      style={{
+                        padding: "18px 24px",
+                        fontSize: "13px",
+                        color: "#1F2434",
+                      }}
+                    >
+                      {user.bookings_count}
+                    </td>
+
+                    {/* Status */}
+                    <td style={{ padding: "18px 24px" }}>
+                      <span
+                        className="inline-flex items-center whitespace-nowrap rounded-full font-medium"
+                        style={{
+                          padding: "6px 12px",
+                          fontSize: "13px",
+                          color: user.is_active ? "#07865D" : "#667085",
+                          backgroundColor: user.is_active
+                            ? "#EAFBF4"
+                            : "#F2F4F7",
+                          border: user.is_active
+                            ? "1px solid #D1F4E3"
+                            : "1px solid #E4E7EC",
+                        }}
+                      >
+                        {user.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td style={{ padding: "18px 24px" }}>
+                      {deleteId === user.id ? (
+                        <div
+                          className="flex items-center"
+                          style={{ gap: "6px" }}
+                        >
+                          <span style={{ fontSize: "10px", color: "#667085" }}>
+                            Delete?
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmDelete(user)}
+                            disabled={deletingId === user.id}
+                            className="font-bold text-white disabled:opacity-60"
+                            style={{
+                              padding: "5px 8px",
+                              borderRadius: "8px",
+                              backgroundColor: "#DC2626",
+                              fontSize: "10px",
+                            }}
+                          >
+                            {deletingId === user.id ? "…" : "Yes"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setDeleteId(null)}
+                            className="font-semibold"
+                            style={{
+                              padding: "5px 8px",
+                              borderRadius: "8px",
+                              backgroundColor: "#F2F4F7",
+                              color: "#667085",
+                              fontSize: "10px",
+                            }}
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          className="flex items-center"
+                          style={{ gap: "8px" }}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => onEditUser(user)}
+                            title="Edit"
+                            className="flex items-center justify-center transition-colors"
+                            style={{
+                              width: "34px",
+                              height: "34px",
+                              borderRadius: "12px",
+                              backgroundColor: "#EFF6FF",
+                              color: "#2563EB",
+                            }}
+                          >
+                            <FaPen style={{ width: "12px", height: "12px" }} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setDeleteId(user.id)}
+                            title="Delete"
+                            className="flex items-center justify-center transition-colors"
+                            style={{
+                              width: "34px",
+                              height: "34px",
+                              borderRadius: "12px",
+                              backgroundColor: "#FFF1F2",
+                              color: "#F04438",
+                            }}
+                          >
+                            <FaTrash
+                              style={{ width: "12px", height: "12px" }}
+                            />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
