@@ -11,26 +11,26 @@ const CARD_CONFIG = [
   {
     key: "available" as const,
     label: "Available",
-    icon: <FaCheckCircle className="w-5 h-5 text-emerald-600" />,
-    bg: "bg-emerald-50",
-    iconBg: "bg-white",
-    text: "text-emerald-700",
+    icon: <FaCheckCircle className="h-5 w-5 text-emerald-600" />,
+    bg: "#EAFBF4",
+    border: "#C9F2E0",
+    text: "#079669",
   },
   {
     key: "inUse" as const,
     label: "In Use",
-    icon: <FaCarSide className="w-5 h-5 text-blue-600" />,
-    bg: "bg-blue-50",
-    iconBg: "bg-white",
-    text: "text-blue-700",
+    icon: <FaCarSide className="h-5 w-5 text-blue-600" />,
+    bg: "#EEF5FF",
+    border: "#D7E7FF",
+    text: "#2563EB",
   },
   {
     key: "maintenance" as const,
     label: "Maintenance",
-    icon: <FaWrench className="w-5 h-5 text-amber-600" />,
-    bg: "bg-amber-50",
-    iconBg: "bg-white",
-    text: "text-amber-700",
+    icon: <FaWrench className="h-5 w-5 text-amber-600" />,
+    bg: "#FFFAE9",
+    border: "#F8E8A7",
+    text: "#C65A06",
   },
 ];
 
@@ -39,26 +39,48 @@ export default function VehicleSummaryCards({
   loading,
 }: VehicleSummaryCardsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <div
+      className="grid grid-cols-1 sm:grid-cols-3"
+      style={{ gap: "20px", marginBottom: "15px" }}
+    >
       {CARD_CONFIG.map((card) => (
         <div
           key={card.key}
-          className={`rounded-2xl px-6 py-5 flex items-center gap-4 ${card.bg}`}
+          className="flex items-center rounded-[20px]"
+          style={{
+            minHeight: "102px",
+            padding: "20px 22px",
+            gap: "16px",
+            backgroundColor: card.bg,
+            border: `1px solid ${card.border}`,
+          }}
         >
           <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 shadow-sm ${card.iconBg}`}
+            className="flex shrink-0 items-center justify-center rounded-full bg-white"
+            style={{
+              width: "50px",
+              height: "50px",
+              boxShadow: "0 2px 8px rgba(15, 23, 42, 0.04)",
+            }}
           >
             {card.icon}
           </div>
 
           <div className="min-w-0">
             <p
-              className={`text-2xl font-bold leading-none ${card.text}`}
-              style={{ fontFamily: "Outfit, sans-serif" }}
+              className="font-bold leading-none"
+              style={{
+                color: card.text,
+                fontSize: "28px",
+                fontFamily: "Outfit, sans-serif",
+              }}
             >
               {loading ? "—" : stats[card.key]}
             </p>
-            <p className={`text-sm font-medium mt-1.5 ${card.text}`}>
+            <p
+              className="font-medium"
+              style={{ color: card.text, marginTop: "6px", fontSize: "14px" }}
+            >
               {card.label}
             </p>
           </div>
