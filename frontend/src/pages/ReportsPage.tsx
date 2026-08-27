@@ -14,13 +14,11 @@ import { useAuth } from "../context/AuthContext";
 import * as dashboardApi from "../api/dashboardApi";
 import * as reportApi from "../api/reportApi";
 
-import type {
-  AdminDashboardData,
-  DeanDashboardData,
-} from "../types/dashboard";
+import type { AdminDashboardData, DeanDashboardData } from "../types/dashboard";
 import { toNumber } from "../utils/dashboard";
 
 type ReportType = "booking-summary" | "fleet-status" | "activity-summary";
+
 type BookingStatusFilter =
   | "all"
   | "PENDING"
@@ -34,7 +32,7 @@ interface ReportDef {
   title: string;
   description: string;
   icon: React.ReactNode;
-  color: string;
+  iconColor: string;
   iconBg: string;
 }
 
@@ -43,18 +41,18 @@ const REPORT_DEFS: ReportDef[] = [
     id: "booking-summary",
     title: "Booking Summary Report",
     description:
-      "Full list of bookings with status, requester, vehicle, destination, and dates.",
-    icon: <FaCalendarCheck className="w-4 h-4" />,
-    color: "text-blue-600",
+      "Full list of all bookings with status, requester, vehicle, destination, and dates.",
+    icon: <FaCalendarCheck className="h-5 w-5" />,
+    iconColor: "text-blue-600",
     iconBg: "bg-blue-50",
   },
   {
     id: "fleet-status",
     title: "Fleet Status Report",
     description:
-      "Current status of university vehicles including driver and capacity.",
-    icon: <FaCar className="w-4 h-4" />,
-    color: "text-emerald-600",
+      "Current status of all university vehicles including driver, fuel type, and last service date.",
+    icon: <FaCar className="h-5 w-5" />,
+    iconColor: "text-emerald-600",
     iconBg: "bg-emerald-50",
   },
   {
@@ -62,8 +60,8 @@ const REPORT_DEFS: ReportDef[] = [
     title: "Activity Summary Report",
     description:
       "Combined snapshot of booking and fleet activity across the system.",
-    icon: <FaChartLine className="w-4 h-4" />,
-    color: "text-purple-600",
+    icon: <FaChartLine className="h-5 w-5" />,
+    iconColor: "text-purple-600",
     iconBg: "bg-purple-50",
   },
 ];
@@ -83,6 +81,7 @@ export default function ReportsPage() {
 
   const [selected, setSelected] = useState<ReportType>("booking-summary");
   const [statusFilter, setStatusFilter] = useState<BookingStatusFilter>("all");
+
   const [generating, setGenerating] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -90,6 +89,7 @@ export default function ReportsPage() {
   const [dashboardData, setDashboardData] = useState<
     AdminDashboardData | DeanDashboardData | null
   >(null);
+
   const [dashboardLoading, setDashboardLoading] = useState(true);
 
   useEffect(() => {
@@ -97,21 +97,28 @@ export default function ReportsPage() {
 
     async function load() {
       setDashboardLoading(true);
+
       try {
         const data =
           role === "ADMIN"
             ? await dashboardApi.getAdminDashboard()
             : await dashboardApi.getDeanDashboard();
-        if (!cancelled) setDashboardData(data);
+
+        if (!cancelled) {
+          setDashboardData(data);
+        }
       } catch {
-        // Preview pills are a nice-to-have — the PDF download still works
-        // even if this quietly fails, so we don't surface an error banner.
+        // Report download can still work even if preview totals fail.
       } finally {
-        if (!cancelled) setDashboardLoading(false);
+        if (!cancelled) {
+          setDashboardLoading(false);
+        }
       }
     }
 
-    if (role === "ADMIN" || role === "DEAN") load();
+    if (role === "ADMIN" || role === "DEAN") {
+      load();
+    }
 
     return () => {
       cancelled = true;
@@ -125,23 +132,54 @@ export default function ReportsPage() {
 
   const bookingPreview = useMemo(
     () => [
-      { label: "Pending", value: toNumber(pendingLabel) },
-      { label: "Approved", value: toNumber(dashboardData?.approved_bookings) },
-      { label: "Confirmed", value: toNumber(dashboardData?.confirmed_bookings) },
-      { label: "Completed", value: toNumber(dashboardData?.completed_bookings) },
-      { label: "Cancelled", value: toNumber(dashboardData?.cancelled_bookings) },
+      {
+        label: "Pending",
+        value: toNumber(pendingLabel),
+      },
+      {
+        label: "Approved",
+        value: toNumber(dashboardData?.approved_bookings),
+      },
+      {
+        label: "Confirmed",
+        value: toNumber(dashboardData?.confirmed_bookings),
+      },
+      {
+        label: "Completed",
+        value: toNumber(dashboardData?.completed_bookings),
+      },
+      {
+        label: "Cancelled",
+        value: toNumber(dashboardData?.cancelled_bookings),
+      },
     ],
     [dashboardData, pendingLabel],
   );
 
   const fleetPreview = useMemo(() => {
-    if (role !== "ADMIN" || !dashboardData) return null;
+    if (role !== "ADMIN" || !dashboardData) {
+      return null;
+    }
+
     const d = dashboardData as AdminDashboardData;
+
     return [
-      { label: "Total Vehicles", value: toNumber(d.total_vehicles) },
-      { label: "Available", value: toNumber(d.available_vehicles) },
-      { label: "In Use", value: toNumber(d.vehicles_in_use) },
-      { label: "Maintenance", value: toNumber(d.vehicles_under_maintenance) },
+      {
+        label: "Total Vehicles",
+        value: toNumber(d.total_vehicles),
+      },
+      {
+        label: "Available",
+        value: toNumber(d.available_vehicles),
+      },
+      {
+        label: "In Use",
+        value: toNumber(d.vehicles_in_use),
+      },
+      {
+        label: "Maintenance",
+        value: toNumber(d.vehicles_under_maintenance),
+      },
     ];
   }, [dashboardData, role]);
 
@@ -161,6 +199,7 @@ export default function ReportsPage() {
       }
 
       const def = REPORT_DEFS.find((d) => d.id === selected)!;
+
       setLastGenerated(`${def.title} downloaded`);
     } catch (err: any) {
       setDownloadError(
@@ -179,174 +218,194 @@ export default function ReportsPage() {
       title="Reports"
       subtitle="Generate and download PDF reports for analysis"
     >
-      {/* Report type selector */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {REPORT_DEFS.map((def) => (
-          <button
-            key={def.id}
-            onClick={() => {
-              setSelected(def.id);
-              setStatusFilter("all");
-              setDownloadError(null);
-            }}
-            className={`p-5 rounded-2xl border-2 text-left transition-all duration-150 bg-white ${
-              selected === def.id
-                ? "border-[#4C1D1D] bg-[#4C1D1D]/[0.03] shadow-sm"
-                : "border-transparent hover:border-gray-200 hover:shadow-sm"
-            }`}
-          >
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${def.iconBg} ${def.color}`}
-            >
-              {def.icon}
-            </div>
-            <p className="text-sm font-bold text-[#1C1C2E] leading-snug">
-              {def.title}
-            </p>
-            <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-              {def.description}
-            </p>
-            {selected === def.id && (
-              <span className="inline-flex items-center gap-1 mt-2.5 text-[10px] font-semibold text-[#4C1D1D] bg-[#4C1D1D]/10 px-2 py-0.5 rounded-full">
-                <FaCheck className="w-2 h-2" /> Selected
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <div className="flex flex-col gap-6">
+        {/* Report cards */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {REPORT_DEFS.map((def) => {
+            const active = selected === def.id;
 
-      {/* Filters + Generate row */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        {selected === "booking-summary" && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 shrink-0">
-              <FaFilter className="w-3 h-3" /> Filter by status:
-            </span>
-            {STATUS_TABS.map((tab) => (
+            return (
               <button
-                key={tab.key}
-                onClick={() => setStatusFilter(tab.key)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap ${
-                  statusFilter === tab.key
-                    ? "bg-[#4C1D1D] text-white"
-                    : "bg-white border border-black/[0.08] text-gray-500 hover:bg-gray-50"
-                }`}
+                key={def.id}
+                type="button"
+                onClick={() => {
+                  setSelected(def.id);
+                  setStatusFilter("all");
+                  setDownloadError(null);
+                }}
+                className={[
+                  "min-h-[220px] rounded-[22px] bg-white p-6 text-left",
+                  "transition-all duration-200",
+                  active
+                    ? "border-2 border-[#5A1E1E] bg-[#5A1E1E]/[0.025] shadow-sm"
+                    : "border border-[#E8EAF0] hover:-translate-y-[1px] hover:shadow-md",
+                ].join(" ")}
               >
-                {tab.label}
+                <div
+                  className={`mb-5 flex h-12 w-12 items-center justify-center rounded-2xl ${def.iconBg} ${def.iconColor}`}
+                >
+                  {def.icon}
+                </div>
+
+                <h3 className="text-[17px] font-bold leading-6 text-[#171A2B]">
+                  {def.title}
+                </h3>
+
+                <p className="mt-2 max-w-[360px] text-[14px] leading-6 text-[#8B94A7]">
+                  {def.description}
+                </p>
+
+                {active && (
+                  <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-[#5A1E1E]/10 px-3 py-1 text-[11px] font-semibold text-[#5A1E1E]">
+                    <FaCheck className="h-2.5 w-2.5" />
+                    Selected
+                  </span>
+                )}
               </button>
-            ))}
+            );
+          })}
+        </div>
+
+        {/* Filters + Download */}
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0 flex-1">
+            {selected === "booking-summary" && (
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="mr-1 flex shrink-0 items-center gap-2 text-[13px] font-semibold text-[#667085]">
+                  <FaFilter className="h-3.5 w-3.5" />
+                  Filter by status:
+                </span>
+
+                {STATUS_TABS.map((tab) => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setStatusFilter(tab.key)}
+                    className={[
+                      "h-10 rounded-[18px] px-4 text-[13px] font-semibold transition-all",
+                      statusFilter === tab.key
+                        ? "bg-[#5A1E1E] text-white shadow-sm"
+                        : "border border-[#E4E7EC] bg-white text-[#667085] hover:bg-gray-50",
+                    ].join(" ")}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-3">
+            {lastGenerated && (
+              <div className="flex items-center gap-2 rounded-[16px] border border-emerald-200 bg-emerald-50 px-3.5 py-2.5">
+                <FaCheck className="h-3 w-3 shrink-0 text-emerald-600" />
+                <span className="max-w-[220px] truncate text-[12px] font-medium text-emerald-700">
+                  {lastGenerated}
+                </span>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={generating}
+              className="flex h-[50px] items-center justify-center gap-2.5 rounded-[20px] bg-[#5A1E1E] px-6 text-[14px] font-bold text-white shadow-[0_5px_14px_rgba(90,30,30,0.18)] transition-all hover:bg-[#491818] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <FaDownload className="h-3.5 w-3.5" />
+              {generating ? "Generating…" : "Download PDF"}
+            </button>
+          </div>
+        </div>
+
+        {downloadError && (
+          <div className="rounded-[18px] border border-red-200 bg-red-50 px-5 py-3.5 text-sm text-red-700">
+            {downloadError}
           </div>
         )}
 
-        <div className="sm:ml-auto flex items-center gap-3 flex-wrap">
-          {lastGenerated && (
-            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
-              <FaCheck className="w-3 h-3 text-emerald-600 shrink-0" />
-              <p className="text-xs text-emerald-700 font-medium truncate max-w-[220px]">
-                {lastGenerated}
-              </p>
-            </div>
-          )}
-
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#4C1D1D] text-white rounded-xl text-sm font-bold hover:bg-[#3A1515] active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap shadow-sm shadow-[#4C1D1D]/20"
-          >
-            {generating ? (
-              "Generating…"
-            ) : (
-              <>
-                <FaDownload className="w-3.5 h-3.5" />
-                Download PDF
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {downloadError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-5 py-3.5">
-          {downloadError}
-        </div>
-      )}
-
-      {/* Preview panel */}
-      <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-gray-100 bg-gray-50/60">
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-8 h-8 rounded-lg flex items-center justify-center ${selectedDef.iconBg} ${selectedDef.color}`}
-            >
-              {selectedDef.icon}
-            </div>
-            <div>
-              <h3
-                className="text-sm font-bold text-[#1C1C2E]"
-                style={{ fontFamily: "Outfit, sans-serif" }}
+        {/* Preview card */}
+        <div className="overflow-hidden rounded-[22px] border border-[#E7EAF0] bg-white shadow-[0_2px_8px_rgba(15,23,42,0.04)]">
+          <div className="flex flex-col gap-4 border-b border-[#EEF0F4] bg-[#FCFCFD] px-6 py-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex items-center gap-4">
+              <div
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${selectedDef.iconBg} ${selectedDef.iconColor}`}
               >
-                {selectedDef.title}
-              </h3>
-              <p className="text-xs text-gray-400">
-                Live totals — full detail is included in the PDF
-              </p>
+                {selectedDef.icon}
+              </div>
+
+              <div>
+                <h3 className="text-[15px] font-bold text-[#171A2B]">
+                  {selectedDef.title}
+                </h3>
+
+                <p className="mt-0.5 text-[12px] text-[#98A2B3]">
+                  Preview — data included in PDF
+                </p>
+              </div>
             </div>
+
+            {!dashboardLoading && (
+              <div className="flex flex-wrap items-center gap-2">
+                {(selected === "booking-summary" ||
+                  selected === "activity-summary") &&
+                  bookingPreview.map((item) => (
+                    <span
+                      key={item.label}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#F7F8FA] px-3.5 py-2 text-[12px] text-[#667085]"
+                    >
+                      <strong className="font-bold text-[#171A2B]">
+                        {item.value}
+                      </strong>
+                      {item.label}
+                    </span>
+                  ))}
+
+                {selected === "fleet-status" &&
+                  fleetPreview?.map((item) => (
+                    <span
+                      key={item.label}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-[#F7F8FA] px-3.5 py-2 text-[12px] text-[#667085]"
+                    >
+                      <strong className="font-bold text-[#171A2B]">
+                        {item.value}
+                      </strong>
+                      {item.label}
+                    </span>
+                  ))}
+              </div>
+            )}
           </div>
 
-          {!dashboardLoading && (
-            <div className="flex items-center gap-2 flex-wrap">
-              {(selected === "booking-summary" ||
-                selected === "activity-summary") &&
-                bookingPreview.map((s) => (
-                  <span
-                    key={s.label}
-                    className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap"
-                  >
-                    {s.value} {s.label}
-                  </span>
-                ))}
-              {selected === "fleet-status" &&
-                fleetPreview?.map((s) => (
-                  <span
-                    key={s.label}
-                    className="text-xs font-semibold px-2.5 py-1 rounded-full bg-white border border-gray-200 text-gray-600 whitespace-nowrap"
-                  >
-                    {s.value} {s.label}
-                  </span>
-                ))}
-            </div>
-          )}
-        </div>
-
-        <div className="p-6">
-          {dashboardLoading ? (
-            <p className="text-sm text-gray-400">Loading preview…</p>
-          ) : selected === "fleet-status" && role === "DEAN" ? (
-            <p className="text-sm text-gray-400">
-              Fleet totals aren't shown here for your role — download the PDF
-              to view full vehicle details.
-            </p>
-          ) : (
-            <p className="text-sm text-gray-500 leading-relaxed">
-              {selectedDef.description} Click{" "}
-              <span className="font-semibold text-[#4C1D1D]">
-                Download PDF
-              </span>{" "}
-              above to generate the full report
-              {selected === "booking-summary" && statusFilter !== "all" && (
-                <>
-                  {" "}
-                  filtered to{" "}
-                  <span className="font-semibold text-[#4C1D1D]">
-                    {statusFilter.charAt(0) +
-                      statusFilter.slice(1).toLowerCase()}
-                  </span>{" "}
-                  bookings
-                </>
-              )}
-              .
-            </p>
-          )}
+          <div className="px-6 py-7">
+            {dashboardLoading ? (
+              <p className="text-[14px] text-[#98A2B3]">Loading preview…</p>
+            ) : selected === "fleet-status" && role === "DEAN" ? (
+              <p className="text-[14px] leading-6 text-[#7D8798]">
+                Fleet totals aren't shown here for your role — download the PDF
+                to view full vehicle details.
+              </p>
+            ) : (
+              <p className="text-[14px] leading-7 text-[#667085]">
+                {selectedDef.description} Click{" "}
+                <span className="font-semibold text-[#5A1E1E]">
+                  Download PDF
+                </span>{" "}
+                above to generate the full report
+                {selected === "booking-summary" && statusFilter !== "all" && (
+                  <>
+                    {" "}
+                    filtered to{" "}
+                    <span className="font-semibold text-[#5A1E1E]">
+                      {statusFilter.charAt(0) +
+                        statusFilter.slice(1).toLowerCase()}
+                    </span>{" "}
+                    bookings
+                  </>
+                )}
+                .
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </AppShell>
