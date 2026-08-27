@@ -1,69 +1,46 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 
-import Dashboard from "./pages/DashboardPage";
-import Login from "./pages/LoginPage";
-import Register from "./pages/RegisterPage";
-import Vehicles from "./pages/VehiclesPage";
-import Users from "./pages/UsersPage";
-import Reports from "./pages/ReportsPage";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import BookingFormPage from "./pages/BookingFormPage";
 
-import ProtectedRoute from "./routes/ProtectedRoute";
 
-function App() {
+export default function App() {
   return (
     <BrowserRouter>
+
       <Routes>
+
         {/* Login */}
-        <Route path="/" element={<Login />} />
+        <Route
+          path="/"
+          element={<LoginPage />}
+        />
 
-        {/* Registration */}
-        <Route path="/register" element={<Register />} />
-
-        {/* Protected Dashboard */}
+        {/* Dashboard */}
         <Route
           path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
+          element={<DashboardPage />}
         />
 
-        {/* Protected Fleet Management (Admin only) */}
+        {/* Bookings */}
         <Route
-          path="/vehicles"
-          element={
-            <ProtectedRoute roles={["ADMIN"]}>
-              <Vehicles />
-            </ProtectedRoute>
-          }
+          path="/bookings"
+          element={<BookingFormPage />}
         />
 
-        {/* Protected User Management (Admin only) */}
+        {/* Add Booking */}
         <Route
-          path="/users"
-          element={
-            <ProtectedRoute roles={["ADMIN"]}>
-              <Users />
-            </ProtectedRoute>
-          }
+          path="/add-booking"
+          element={<BookingFormPage />}
         />
 
-        {/* Protected Reports (Admin + Dean) */}
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute roles={["ADMIN", "DEAN"]}>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Unknown routes */}
-        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
     </BrowserRouter>
   );
 }
-
-export default App;
