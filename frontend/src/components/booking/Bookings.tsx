@@ -84,7 +84,7 @@ export default function Bookings() {
           {/* Table */}
           <BookingTable bookings={filteredBookings} />
         </section>
-
+        //HAs
       </div>
     </MainLayout>
   );

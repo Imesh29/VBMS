@@ -3,8 +3,22 @@ import {
   FaTrash,
 } from "react-icons/fa";
 
-import type { Booking } from "../../data/bookingData";
 import StatusBadge from "./StatusBadge";
+
+export type Booking = {
+  id: string;
+  requestDate: string;
+  vehicle: string;
+  vehicleNumber: string;
+  destination: string;
+  purpose: string;
+  departureDate: string;
+  departureTime: string;
+  pax: number;
+  status: string;
+};
+
+type StatusBadgeStatus = Parameters<typeof StatusBadge>[0]["status"];
 
 interface BookingTableProps {
   bookings: Booking[];
@@ -127,7 +141,9 @@ export default function BookingTable({
 
                 {/* Status */}
                 <td className="px-6 py-5">
-                  <StatusBadge status={booking.status} />
+                  <StatusBadge
+                    status={booking.status as StatusBadgeStatus}
+                  />
                 </td>
 
                 {/* Actions */}
@@ -179,6 +195,8 @@ export default function BookingTable({
         </tbody>
 
       </table>
+
+
     </div>
   );
 }
