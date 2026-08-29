@@ -1,6 +1,5 @@
-import MainLayout from "../components/layout/MainLayout";
-
-export default function DashboardPage() {
+import MainLayout from "../layout/MainLayout";
+export default function Dashboard() {
   return (
     <MainLayout>
 
@@ -15,7 +14,7 @@ export default function DashboardPage() {
           <p className="mt-2 text-slate-500">
             Welcome to the Vehicle Booking Management System.
           </p>
-          //Vehicle Booking Management System dashboard content goes here.
+
         </div>
 
       </div>

@@ -1,11 +1,16 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
 import Dashboard from "./pages/DashboardPage";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
-import Vehicles from "./pages/VehiclesPage";
-import Users from "./pages/UsersPage";
 import Reports from "./pages/ReportsPage";
+import Users from "./pages/UsersPage";
+import Vehicles from "./pages/VehiclesPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -13,13 +18,19 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login */}
-        <Route path="/" element={<Login />} />
+        {/* Public: Login */}
+        <Route
+          path="/"
+          element={<Login />}
+        />
 
-        {/* Registration */}
-        <Route path="/register" element={<Register />} />
+        {/* Public: Registration */}
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
-        {/* Protected Dashboard */}
+        {/* Protected: Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -29,7 +40,7 @@ function App() {
           }
         />
 
-        {/* Protected Fleet Management (Admin only) */}
+        {/* Protected: Fleet Management - Admin only */}
         <Route
           path="/vehicles"
           element={
@@ -39,7 +50,7 @@ function App() {
           }
         />
 
-        {/* Protected User Management (Admin only) */}
+        {/* Protected: User Management - Admin only */}
         <Route
           path="/users"
           element={
@@ -49,7 +60,7 @@ function App() {
           }
         />
 
-        {/* Protected Reports (Admin + Dean) */}
+        {/* Protected: Reports - Admin and Dean */}
         <Route
           path="/reports"
           element={
@@ -60,7 +71,10 @@ function App() {
         />
 
         {/* Unknown routes */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
+        />
       </Routes>
     </BrowserRouter>
   );

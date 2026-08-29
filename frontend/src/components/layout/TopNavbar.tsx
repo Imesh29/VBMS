@@ -4,6 +4,12 @@ import { FaBell } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import AccountPanel from "../common/AccountPanel";
 
+/**
+ * Generate user initials from the full name.
+ *
+ * Example:
+ * "Imesh Daksitha" -> "ID"
+ */
 function initials(name: string) {
   return name
     .split(" ")
@@ -13,19 +19,46 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+/**
+ * Props used to customize the navbar title
+ * depending on the current page.
+ */
 interface TopNavbarProps {
   title?: string;
   subtitle?: string;
 }
 
+/**
+ * Top navigation bar used across the protected application pages.
+ *
+ * Features:
+ * - Dynamic page title and subtitle
+ * - Notification button
+ * - Logged-in user information from AuthContext
+ * - Role-aware label
+ * - Account panel access
+ */
 export default function TopNavbar({
   title = "Dashboard",
   subtitle = "Overview of your vehicle booking system",
 }: TopNavbarProps) {
   const { user } = useAuth();
+
+  /**
+   * Controls the visibility of the account side panel.
+   */
   const [accountOpen, setAccountOpen] = useState(false);
 
+  /**
+   * Fallback user name in case authentication
+   * information has not been loaded yet.
+   */
   const displayName = user?.fullName || "User";
+
+  /**
+   * Convert backend role values into
+   * user-friendly labels.
+   */
   const roleLabel =
     user?.role === "ADMIN"
       ? "Admin"
@@ -35,47 +68,200 @@ export default function TopNavbar({
 
   return (
     <>
+      {/* =====================================================
+          TOP NAVIGATION BAR
+      ====================================================== */}
       <header
-        className="bg-white border-b border-black/[0.06] px-6 md:px-8 py-5 flex items-center justify-between shrink-0"
+        className="
+          flex
+          shrink-0
+          items-center
+          justify-between
+
+          border-b
+          border-black/[0.06]
+
+          bg-white
+
+          px-6
+          py-5
+
+          md:px-8
+        "
         style={{
           padding: "13px",
         }}
       >
+        {/* ===================================================
+            PAGE TITLE
+        ==================================================== */}
         <div className="min-w-0">
           <h1
-            className="text-xl md:text-2xl font-bold text-[#1C1C2E] truncate"
-            style={{ fontFamily: "Outfit, sans-serif" }}
+            className="
+              truncate
+
+              text-xl
+              font-bold
+
+              text-[#1C1C2E]
+
+              md:text-2xl
+            "
+            style={{
+              fontFamily: "Outfit, sans-serif",
+            }}
           >
             {title}
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5 truncate">{subtitle}</p>
+
+          <p
+            className="
+              mt-0.5
+              truncate
+
+              text-sm
+              text-gray-400
+            "
+          >
+            {subtitle}
+          </p>
         </div>
 
-        <div className="flex items-center gap-4 shrink-0">
-          <button className="relative w-11 h-11 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors">
-            <FaBell className="w-4 h-4" />
-            <span className="absolute top-2.5 right-3 w-2 h-2 bg-[#4C1D1D] rounded-full ring-2 ring-white" />
+        {/* ===================================================
+            RIGHT SIDE ACTIONS
+        ==================================================== */}
+        <div className="flex shrink-0 items-center gap-4">
+          {/* =================================================
+              NOTIFICATION BUTTON
+          ================================================== */}
+          <button
+            type="button"
+            title="Notifications"
+            aria-label="Notifications"
+            className="
+              relative
+
+              flex
+              h-11
+              w-11
+              items-center
+              justify-center
+
+              rounded-xl
+
+              bg-gray-50
+              text-gray-500
+
+              transition-colors
+
+              hover:bg-gray-100
+            "
+          >
+            <FaBell className="h-4 w-4" />
+
+            {/* Notification indicator */}
+            <span
+              className="
+                absolute
+                right-3
+                top-2.5
+
+                h-2
+                w-2
+
+                rounded-full
+
+                bg-[#4C1D1D]
+
+                ring-2
+                ring-white
+              "
+            />
           </button>
 
+          {/* =================================================
+              USER ACCOUNT BUTTON
+          ================================================== */}
           <button
+            type="button"
             onClick={() => setAccountOpen(true)}
-            className="flex items-center gap-3 pl-4 border-l border-gray-100 hover:opacity-80 transition-opacity"
             title="My Account"
+            className="
+              flex
+              items-center
+              gap-3
+
+              border-l
+              border-gray-100
+
+              pl-4
+
+              transition-opacity
+
+              hover:opacity-80
+            "
           >
-            <div className="w-11 h-11 rounded-full bg-[#4C1D1D] flex items-center justify-center text-white text-sm font-bold shrink-0">
+            {/* User avatar */}
+            <div
+              className="
+                flex
+                h-11
+                w-11
+                shrink-0
+                items-center
+                justify-center
+
+                rounded-full
+
+                bg-[#4C1D1D]
+
+                text-sm
+                font-bold
+                text-white
+              "
+            >
               {initials(displayName)}
             </div>
 
+            {/* User information */}
             <div
-              className="hidden sm:block min-w-0 text-left"
+              className="
+                hidden
+                min-w-0
+                text-left
+
+                sm:block
+              "
               style={{
                 marginRight: "8px",
               }}
             >
-              <p className="text-sm font-semibold text-[#1C1C2E] leading-tight truncate max-w-[160px]">
+              <p
+                className="
+                  max-w-[160px]
+                  truncate
+
+                  text-sm
+                  font-semibold
+                  leading-tight
+
+                  text-[#1C1C2E]
+                "
+              >
                 {displayName}
               </p>
-              <p className="text-xs text-gray-400 leading-tight mt-0.5 truncate">
+
+              <p
+                className="
+                  mt-0.5
+                  truncate
+
+                  text-xs
+                  leading-tight
+
+                  text-gray-400
+                "
+              >
                 {roleLabel}
               </p>
             </div>
@@ -83,7 +269,13 @@ export default function TopNavbar({
         </div>
       </header>
 
-      <AccountPanel open={accountOpen} onClose={() => setAccountOpen(false)} />
+      {/* =====================================================
+          ACCOUNT PANEL
+      ====================================================== */}
+      <AccountPanel
+        open={accountOpen}
+        onClose={() => setAccountOpen(false)}
+      />
     </>
   );
 }
