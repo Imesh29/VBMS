@@ -1,77 +1,313 @@
-import RoleDropdown from "./RoleDropdown";
-import InputField from "../common/InputField";
+import { useState } from "react";
 
 import { FaEnvelope, FaLock, FaEye } from "react-icons/fa";
 
+import RoleDropdown, { type LoginRole } from "./RoleDropdown";
+
+import InputField from "../common/InputField";
+
+import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
+
 export default function LoginForm() {
+  const { login } = useAuth();
+
+  const [email, setEmail] = useState("");
+
+  const [password, setPassword] = useState("");
+
+  const [selectedRole, setSelectedRole] = useState<LoginRole>("USER");
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setError("");
+
+    if (!email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const loggedInUser = await login(email.trim(), password);
+
+      /*
+       * Backend is authoritative for role.
+       */
+      if (loggedInUser.role !== selectedRole) {
+        setError(
+          `This account belongs to the ${loggedInUser.role} role. Please select the correct role.`,
+        );
+
+        return;
+      }
+
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || "Invalid email or password.";
+
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="flex w-full lg:w-[52%] items-center justify-center bg-gradient-to-br from-[#F8FAFF] to-[#EEF2FF] px-8 py-10">
-      <div className="w-full max-w-lg">
-        {/* Heading */}
+    <div
+      className="
+        flex
+        min-h-screen
+        w-full
+        items-center
+        justify-center
 
-        <h1 className="text-4xl font-bold text-gray-900">Welcome back</h1>
-        <br></br>
+        bg-gradient-to-br
+        from-[#F8FAFF]
+        to-[#EEF2FF]
 
-        <p className="mt-2 text-gray-500">
-          Sign in to access the booking system
-        </p>
+        px-6
+        py-10
 
-        {/* Role */}
+        lg:w-[52%]
+        lg:px-10
+      "
+    >
+      <div
+        className="
+          w-full
+          max-w-[560px]
+        "
+      >
+        {/* =====================================================
+            HEADER
+        ====================================================== */}
 
-        <div className="mt-8">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            ROLE
-          </label>
-          <br></br>
-          <RoleDropdown />
+        <div className="mb-10 mt-20">
+          <h1
+            className="
+              text-4xl
+              font-bold
+              leading-tight
+              tracking-tight
+              text-gray-900
+            "
+          >
+            Welcome back
+          </h1>
+
+          <p
+            className="
+              mt-2
+              text-base
+              text-gray-400
+              mb-6
+            "
+            style={{
+              marginTop: "7px",
+            }}
+          >
+            Sign in to access the booking system
+          </p>
         </div>
 
-        {/* Email */}
+        {/* =====================================================
+            FORM
+        ====================================================== */}
 
-        <div className="mt-5">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            EMAIL ADDRESS
-          </label>
+        <form onSubmit={handleSubmit}>
+          {/* =================================================
+              ROLE
+          ================================================== */}
 
-          <InputField
-            icon={<FaEnvelope />}
-            type="email"
-            placeholder="your.email@uni.edu.my"
-          />
-        </div>
+          <div className="relative">
+            <label
+              className="
+                mb-3
+                block
 
-        {/* Password */}
+                text-sm
+                font-semibold
+                tracking-wide
 
-        <div className="mt-5">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            PASSWORD
-          </label>
+                text-gray-700
+              "
+              style={{
+                marginTop: "20px",
+              }}
+            >
+              ROLE
+            </label>
 
-          <InputField
-            icon={<FaLock />}
-            rightIcon={<FaEye />}
-            type="password"
-            placeholder="Enter your password"
-          />
-        </div>
+            <RoleDropdown value={selectedRole} onChange={setSelectedRole} />
+          </div>
 
-        {/* Button */}
+          {/* =================================================
+              EMAIL
+          ================================================== */}
 
-        <br></br>
+          <div className="mt-7">
+            <label
+              className="
+                mb-3
+                block
 
-        <button className="mt-8 w-full h-14 rounded-2xl bg-[#5B1E1D] text-lg font-semibold text-white shadow-lg transition-all duration-300 hover:bg-[#4A1616] hover:scale-[1.02]">
-          Sign In
-        </button>
+                text-sm
+                font-semibold
+                tracking-wide
 
-        {/* Demo */}
+                text-gray-700
+              "
+            >
+              EMAIL ADDRESS
+            </label>
 
-        <div className="my-8 flex items-center gap-5">
-          <div className="h-px flex-1 bg-gray-300"></div>
+            <div className="h-[68px]">
+              <InputField
+                name="email"
+                icon={<FaEnvelope />}
+                type="email"
+                placeholder="your.email@uni.edu.my"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
 
-          <div className="h-px flex-1 bg-gray-300"></div>
-        </div>
+          {/* =================================================
+              PASSWORD
+          ================================================== */}
 
-        <div className="space-y-4"></div>
+          <div className="mt-7">
+            <label
+              className="
+                mb-3
+                block
+
+                text-sm
+                font-semibold
+                tracking-wide
+
+                text-gray-700
+              "
+            >
+              PASSWORD
+            </label>
+
+            <div className="h-[68px]">
+              <InputField
+                name="password"
+                icon={<FaLock />}
+                rightIcon={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="
+                      cursor-pointer
+                      text-gray-400
+                      transition-colors
+                      hover:text-gray-600
+                    "
+                  >
+                    <FaEye />
+                  </button>
+                }
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
+          {/* =================================================
+              ERROR
+          ================================================== */}
+
+          {error && (
+            <div
+              className="
+                mt-5
+
+                rounded-xl
+                border
+                border-red-200
+
+                bg-red-50
+
+                px-4
+                py-3
+
+                text-sm
+                text-red-600
+              "
+            >
+              {error}
+            </div>
+          )}
+
+          {/* =================================================
+              SIGN IN
+          ================================================== */}
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="
+              mt-7
+
+              h-[52px]
+              w-full
+
+              rounded-3xl
+
+              bg-[#5B1E1D]
+
+              text-base
+              font-semibold
+              text-white
+
+              shadow-sm
+
+              transition-all
+              duration-200
+
+              hover:bg-[#4A1616]
+
+              disabled:cursor-not-allowed
+              disabled:opacity-60
+            "
+          >
+            {isSubmitting ? "Signing in..." : "Sign In"}
+          </button>
+
+          {/* Register link */}
+
+          <p className="h-[20px] mt-6 text-center text-sm text-gray-500">
+            New to VBMS?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-[#5B1E1D] hover:underline"
+            >
+              Create an account
+            </Link>
+          </p>
+        </form>
       </div>
     </div>
   );

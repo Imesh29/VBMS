@@ -1,146 +1,187 @@
-import { FaEye, FaEdit } from "react-icons/fa";
+import type { NormalizedBooking } from "../../types/dashboard";
 
-const bookings = [
-  {
-    id: "BK001",
-    requester: "John Silva",
-    vehicle: "Toyota Prius",
-    date: "2026-07-20",
-    destination: "Colombo",
-    status: "Approved",
+const STATUS_STYLES: Record<
+  string,
+  { bg: string; text: string; border: string; dot: string }
+> = {
+  Pending: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    dot: "bg-amber-400",
   },
-  {
-    id: "BK002",
-    requester: "Kasun Perera",
-    vehicle: "Nissan Caravan",
-    date: "2026-07-21",
-    destination: "Galle",
-    status: "Pending",
+  Approved: {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    border: "border-blue-200",
+    dot: "bg-blue-400",
   },
-  {
-    id: "BK003",
-    requester: "Nimal Fernando",
-    vehicle: "Toyota Hiace",
-    date: "2026-07-22",
-    destination: "Matara",
-    status: "Rejected",
+  Confirmed: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
   },
-  {
-    id: "BK004",
-    requester: "Saman Kumara",
-    vehicle: "Honda Vezel",
-    date: "2026-07-23",
-    destination: "Hambantota",
-    status: "Approved",
+  Completed: {
+    bg: "bg-slate-50",
+    text: "text-slate-600",
+    border: "border-slate-200",
+    dot: "bg-slate-400",
   },
-];
+  Cancelled: {
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
+    dot: "bg-red-400",
+  },
+};
 
-export default function RecentBookingsTable() {
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "Approved":
-        return "bg-green-100 text-green-700";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-700";
-      case "Rejected":
-        return "bg-red-100 text-red-700";
-      default:
-        return "bg-gray-100 text-gray-700";
-    }
-  };
+function initials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_STYLES[status] ?? STATUS_STYLES.Pending;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-6 mt-8">
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border ${s.bg} ${s.text} ${s.border}`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {status}
+    </span>
+  );
+}
 
-      <div className="flex justify-between items-center mb-6">
+interface RecentBookingsTableProps {
+  title?: string;
+  bookings: NormalizedBooking[];
+  loading?: boolean;
+  error?: string | null;
+}
 
-        <h2 className="text-xl font-bold">
-          Recent Bookings
-        </h2>
-
-        <button className="bg-[#5B1E1D] text-white px-4 py-2 rounded-lg hover:bg-[#491715]">
-          View All
-        </button>
-
+export default function RecentBookingsTable({
+  title = "Recent Bookings",
+  bookings,
+  loading,
+  error,
+}: RecentBookingsTableProps) {
+  return (
+    <div
+      className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden"
+      style={{
+        marginTop: "30px",
+        padding: "20px",
+      }}
+    >
+      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-50">
+        <h3
+          className="text-lg font-bold text-[#1C1C2E]"
+          style={{ fontFamily: "Outfit, sans-serif" }}
+        >
+          {title}
+        </h3>
       </div>
 
       <div className="overflow-x-auto">
-
         <table className="w-full">
-
           <thead>
-
-            <tr className="border-b">
-
-              <th className="text-left py-3">Booking ID</th>
-              <th className="text-left py-3">Requester</th>
-              <th className="text-left py-3">Vehicle</th>
-              <th className="text-left py-3">Date</th>
-              <th className="text-left py-3">Destination</th>
-              <th className="text-left py-3">Status</th>
-              <th className="text-center py-3">Actions</th>
-
+            <tr className="bg-gray-50/60">
+              {[
+                "Booking No.",
+                "Requester",
+                "Destination",
+                "Date",
+                "Status",
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
-
           </thead>
 
-          <tbody>
-
-            {bookings.map((booking) => (
-
-              <tr
-                key={booking.id}
-                className="border-b hover:bg-gray-50"
-              >
-
-                <td className="py-4">{booking.id}</td>
-
-                <td>{booking.requester}</td>
-
-                <td>{booking.vehicle}</td>
-
-                <td>{booking.date}</td>
-
-                <td>{booking.destination}</td>
-
-                <td>
-
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusStyle(
-                      booking.status
-                    )}`}
-                  >
-                    {booking.status}
-                  </span>
-
+          <tbody className="divide-y divide-gray-50">
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
+                  Loading bookings…
                 </td>
-
-                <td>
-
-                  <div className="flex justify-center gap-3">
-
-                    <button className="text-blue-600 hover:text-blue-800">
-                      <FaEye />
-                    </button>
-
-                    <button className="text-green-600 hover:text-green-800">
-                      <FaEdit />
-                    </button>
-
-                  </div>
-
-                </td>
-
               </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-red-500">
+                  {error}
+                </td>
+              </tr>
+            ) : bookings.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
+                  No bookings to show.
+                </td>
+              </tr>
+            ) : (
+              bookings.map((booking) => (
+                <tr
+                  key={booking.id}
+                  className="hover:bg-gray-50/40 transition-colors"
+                >
+                  <td className="px-6 py-4">
+                    <p className="text-sm font-bold text-[#4C1D1D]">
+                      {booking.bookingReference}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {booking.vehicle}
+                    </p>
+                  </td>
 
-            ))}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#4C1D1D] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        {initials(booking.requester)}
+                      </div>
 
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-[#1C1C2E] truncate">
+                          {booking.requester}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {booking.department}
+                        </p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td className="px-6 py-4 max-w-[200px]">
+                    <p className="text-sm text-gray-700 truncate">
+                      {booking.destination}
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <p className="text-sm text-gray-600 whitespace-nowrap">
+                      {booking.date}
+                    </p>
+                  </td>
+
+                  <td className="px-6 py-4">
+                    <StatusBadge status={booking.status} />
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
-
         </table>
-
       </div>
-
     </div>
   );
 }

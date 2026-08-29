@@ -1,74 +1,79 @@
-import { FaCarSide, FaCalendarCheck } from "react-icons/fa";
+import { FaCar } from "react-icons/fa";
 
-export default function WelcomeBanner() {
+import { useAuth } from "../../context/AuthContext";
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+interface WelcomeBannerProps {
+  totalBookings?: number;
+}
+
+export default function WelcomeBanner({
+  totalBookings = 0,
+}: WelcomeBannerProps) {
+  const { user } = useAuth();
+
+  const formattedDate = new Date().toLocaleDateString("en-MY", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
   return (
-    <div className="rounded-3xl bg-gradient-to-r from-[#5B1E1D] to-[#7A2E2B] text-white p-8 shadow-lg">
+    <div
+      className="relative bg-[#4C1D1D] rounded-2xl px-6 md:px-8 py-6 md:py-7 overflow-hidden flex items-center justify-between"
+      style={{
+        padding: "20px",
+        marginTop: "15px",
+        marginBottom: "15px",
+      }}
+    >
+      {/* Subtle radial glow */}
+      <div
+        className="absolute inset-0 opacity-[0.06]"
+        style={{
+          background:
+            "radial-gradient(ellipse at 90% 50%, #fff 0%, transparent 70%)",
+        }}
+      />
 
-      <div className="flex flex-col lg:flex-row items-center justify-between">
-
-        {/* Left Section */}
-        <div>
-
-          <p className="text-sm text-gray-200">
-            Welcome Back 👋
-          </p>
-
-          <h2 className="mt-2 text-4xl font-bold">
-            Vehicle Booking Dashboard
-          </h2>
-
-          <p className="mt-4 max-w-xl text-gray-200">
-            Manage vehicle requests, approve bookings,
-            monitor fleet availability and view system
-            statistics from one place.
-          </p>
-
-          <button className="mt-8 rounded-xl bg-white px-6 py-3 font-semibold text-[#5B1E1D] shadow hover:bg-gray-100 transition">
-            Create New Booking
-          </button>
-
-        </div>
-
-        {/* Right Section */}
-
-        <div className="mt-8 lg:mt-0 grid grid-cols-2 gap-4">
-
-          <div className="rounded-2xl bg-white/10 backdrop-blur-sm p-5 w-40">
-
-            <FaCalendarCheck
-              className="text-3xl mb-3"
-            />
-
-            <h3 className="text-3xl font-bold">
-              08
-            </h3>
-
-            <p className="text-sm text-gray-200">
-              Bookings Today
-            </p>
-
-          </div>
-
-          <div className="rounded-2xl bg-white/10 backdrop-blur-sm p-5 w-40">
-
-            <FaCarSide
-              className="text-3xl mb-3"
-            />
-
-            <h3 className="text-3xl font-bold">
-              12
-            </h3>
-
-            <p className="text-sm text-gray-200">
-              Vehicles Available
-            </p>
-
-          </div>
-
-        </div>
-
+      {/* Watermark icon */}
+      <div className="absolute right-8 bottom-0 opacity-[0.07] pointer-events-none">
+        <FaCar className="w-32 h-32 text-white" />
       </div>
 
+      {/* Left */}
+      <div className="relative z-10 min-w-0">
+        <p className="text-white/50 text-sm">{getGreeting()},</p>
+
+        <h2
+          className="text-white text-2xl md:text-3xl font-bold mt-1 leading-tight truncate"
+          style={{ fontFamily: "Outfit, sans-serif" }}
+        >
+          {user?.fullName || "there"}
+        </h2>
+
+        <p className="text-white/40 text-sm mt-2">
+          {totalBookings} total bookings across the system
+        </p>
+      </div>
+
+      {/* Right */}
+      <div className="relative z-10 hidden sm:flex items-center gap-2 shrink-0 rounded-xl bg-white/[0.06] px-4 py-3">
+        <div className="text-right">
+          <p className="text-white/40 text-xs uppercase tracking-widest">
+            Today
+          </p>
+          <p className="text-white/90 text-base font-semibold whitespace-nowrap">
+            {formattedDate}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

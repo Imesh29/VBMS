@@ -1,117 +1,229 @@
-import { FaCarSide, FaCheckCircle } from "react-icons/fa";
+import { FaCarSide } from "react-icons/fa";
 
 export default function LeftPanel() {
   return (
-      <div className="relative hidden lg:flex lg:w-[48%] bg-[#5B1E1D] text-white overflow-hidden">
+    <section
+      className="
+        relative
+        hidden
+        min-h-screen
+        overflow-hidden
+        bg-[#5B1E1D]
+        text-white
+        lg:flex
+        lg:w-[48%]
+      "
+    >
+      {/* =====================================================
+          DECORATIVE BACKGROUND
+      ====================================================== */}
 
-      {/* Background Circles */}
-      <div className="absolute -top-20 right-[-70px] w-72 h-72 rounded-full bg-white/5"></div>
+      {/* Top-right large circle */}
+      <div
+        className="
+          absolute
+          -right-[95px]
+          -top-[95px]
 
-      <div className="absolute bottom-64 right-10 w-40 h-40 rounded-full bg-white/5"></div>
+          h-[350px]
+          w-[350px]
 
-      <div className="absolute -bottom-24 -left-20 w-56 h-56 rounded-full bg-white/5"></div>
+          rounded-full
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col justify-between h-full w-full p-10">
+          bg-white/[0.045]
+        "
+      />
 
-        {/* Logo */}
-        <div>
-          <div className="flex items-center gap-3">
+      {/* Bottom-right circle */}
+      <div
+        className="
+          absolute
+          -bottom-[35px]
+          right-[15px]
 
-            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+          h-[200px]
+          w-[200px]
 
-              <FaCarSide className="text-xl" />
+          rounded-full
 
-            </div>
+          bg-white/[0.045]
+        "
+      />
 
-            <div>
-              <h2 className="font-bold text-xl">
-                VBMS
-              </h2>
+      {/* Bottom-left large circle */}
+      <div
+        className="
+          absolute
+          -bottom-[125px]
+          -left-[115px]
 
-              <h3 className="text-sm text-gray-300">
-                Vehicle Booking Management System
-              </h3>
+          h-[310px]
+          w-[310px]
 
-            </div>
+          rounded-full
 
+          bg-white/[0.045]
+        "
+      />
+
+      {/* =====================================================
+          CONTENT CONTAINER
+      ====================================================== */}
+
+      <div
+        className="
+          relative
+          z-10
+          flex
+          min-h-screen
+          w-full
+          flex-col
+        "
+        style={{
+          paddingTop: "42px",
+          paddingLeft: "50px",
+          paddingRight: "50px",
+        }}
+      >
+        {/* =================================================
+            BRAND
+        ================================================== */}
+
+        <div
+          className="
+            flex
+            items-center
+            gap-4
+          "
+        >
+          {/* Logo */}
+
+          <div
+            className="
+              flex
+              h-12
+              w-12
+              shrink-0
+              items-center
+              justify-center
+
+              rounded-full
+
+              bg-white/[0.12]
+
+              shadow-sm
+            "
+          >
+            <FaCarSide
+              className="
+                text-xl
+                text-white
+              "
+            />
           </div>
 
-          {/* Heading */}
+          {/* Brand text */}
 
-          <div className="mt-16">
+          <div>
+            <h2
+              className="
+                text-[20px]
+                font-bold
+                leading-none
+                tracking-tight
+              "
+            >
+              VBMS
+            </h2>
 
-              <h1 className="text-4xl xl:text-5xl font-bold leading-tight">
-            <br></br><br></br>
-              University Vehicle
-              <br />
-              Services Portal
+            <p
+              className="
+                mt-1.5
 
-            </h1>
-            <br></br>
-            <p className="mt-6 text-lg leading-8 text-gray-300 max-w-md">
+                text-[14px]
+                leading-none
 
-              Streamlined vehicle booking management
-              for staff, Faculty Deans and the Vehicle
-              Management Department.
-
+                text-white/45
+              "
+              style={{
+                marginTop: "9px",
+              }}
+            >
+              Vehicle Booking Mgmt
             </p>
-
           </div>
-
         </div>
 
-        {/* Features */}
+        {/* =================================================
+            HERO CONTENT
+        ================================================== */}
 
-        <div>
+        <div
+          className="
+            max-w-[470px]
+          "
+          style={{
+            marginTop: "68px",
+          }}
+        >
+          <h1
+            className="
+              text-[42px]
+              font-bold
+              leading-[1.22]
+              tracking-[-0.8px]
 
-          <div className="space-y-5">
+              text-white
+            "
+          >
+            University Vehicle
+            <br />
+            Services Portal
+          </h1>
 
-            <div className="flex items-center gap-3">
+          <p
+            className="
+              mt-6
 
-              <FaCheckCircle className="text-green-300" />
+              max-w-[430px]
 
-              <span>
-                Submit and track vehicle booking requests
-              </span>
+              text-[18px]
+              font-normal
+              leading-[1.6]
 
-            </div>
-
-            <div className="flex items-center gap-3">
-
-              <FaCheckCircle className="text-green-300" />
-
-              <span>
-                Multi-level approval workflow (Dean → Admin)
-              </span>
-
-            </div>
-
-            <div className="flex items-center gap-3">
-
-              <FaCheckCircle className="text-green-300" />
-
-              <span>
-                Real-time fleet availability and status
-              </span>
-
-            </div>
-
-          </div>
-
-          <div className="border-t border-white/10 mt-8 pt-6">
-
-            <p className="text-sm text-gray-400">
-              © 2026 University Vehicle Services.
-              All rights reserved.
-            </p>
-
-          </div>
-
+              text-white/55
+            "
+            style={{
+              marginTop: "50px",
+            }}
+          >
+            Streamlined vehicle booking management for staff, Faculty Deans, and
+            the Vehicle Management Department.
+          </p>
         </div>
-
       </div>
 
-    </div>
+      {/* =====================================================
+          SUBTLE DECORATIVE GLOW
+      ====================================================== */}
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          left-[45%]
+          top-[25%]
+
+          h-[180px]
+          w-[180px]
+
+          rounded-full
+
+          bg-white/[0.012]
+
+          blur-3xl
+        "
+      />
+    </section>
   );
 }

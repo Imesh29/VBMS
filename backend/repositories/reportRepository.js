@@ -7,47 +7,49 @@ export const getBookingReportData = async (filters = {}) => {
   const { from, to, status } = filters;
 
   /*
-    |--------------------------------------------------------------------------
-    | Summary
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Summary
+  |--------------------------------------------------------------------------
+  */
 
   const summaryQuery = `
-        SELECT
+    SELECT
+      COUNT(*) AS total_bookings,
 
-            COUNT(*) AS total_bookings,
+      COUNT(*) FILTER (
+        WHERE status = 'PENDING'
+      ) AS pending,
 
-            COUNT(*) FILTER (
-                WHERE status = 'PENDING'
-            ) AS pending,
+      COUNT(*) FILTER (
+        WHERE status = 'APPROVED'
+      ) AS approved,
 
-            COUNT(*) FILTER (
-                WHERE status = 'APPROVED'
-            ) AS approved,
+      COUNT(*) FILTER (
+        WHERE status = 'CONFIRMED'
+      ) AS confirmed,
 
-            COUNT(*) FILTER (
-                WHERE status = 'CONFIRMED'
-            ) AS confirmed,
+      COUNT(*) FILTER (
+        WHERE status = 'COMPLETED'
+      ) AS completed,
 
-            COUNT(*) FILTER (
-                WHERE status = 'COMPLETED'
-            ) AS completed,
+      COUNT(*) FILTER (
+        WHERE status = 'CANCELLED'
+      ) AS cancelled
 
-            COUNT(*) FILTER (
-                WHERE status = 'CANCELLED'
-            ) AS cancelled
+    FROM bookings
 
-        FROM bookings
+    WHERE
+      ($1::date IS NULL OR departure_date >= $1)
 
-        WHERE
-            ($1::date IS NULL OR departure_date >= $1)
+    AND
+      ($2::date IS NULL OR departure_date <= $2)
 
-        AND
-            ($2::date IS NULL OR departure_date <= $2)
-
-        AND
-            ($3::text IS NULL OR status = $3);
-    `;
+    AND
+      (
+        $3::text IS NULL
+        OR status = $3::booking_status
+      );
+  `;
 
   const summaryResult = await pool.query(summaryQuery, [
     from || null,
@@ -56,50 +58,45 @@ export const getBookingReportData = async (filters = {}) => {
   ]);
 
   /*
-    |--------------------------------------------------------------------------
-    | Booking Details
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Booking Details
+  |--------------------------------------------------------------------------
+  */
 
   const rowsQuery = `
-        SELECT
+    SELECT
+      b.booking_reference,
+      u.full_name,
+      v.vehicle_number,
+      v.vehicle_name,
+      b.destination,
+      b.departure_date,
+      b.return_date,
+      b.status
 
-            b.booking_reference,
+    FROM bookings b
 
-            u.full_name,
+    INNER JOIN users u
+      ON b.user_id = u.id
 
-            v.vehicle_number,
+    INNER JOIN vehicles v
+      ON b.vehicle_id = v.id
 
-            v.vehicle_name,
+    WHERE
+      ($1::date IS NULL OR b.departure_date >= $1)
 
-            b.destination,
+    AND
+      ($2::date IS NULL OR b.departure_date <= $2)
 
-            b.departure_date,
+    AND
+      (
+        $3::text IS NULL
+        OR b.status = $3::booking_status
+      )
 
-            b.return_date,
-
-            b.status
-
-        FROM bookings b
-
-        INNER JOIN users u
-            ON b.user_id = u.id
-
-        INNER JOIN vehicles v
-            ON b.vehicle_id = v.id
-
-        WHERE
-            ($1::date IS NULL OR b.departure_date >= $1)
-
-        AND
-            ($2::date IS NULL OR b.departure_date <= $2)
-
-        AND
-            ($3::text IS NULL OR b.status = $3)
-
-        ORDER BY
-            b.departure_date DESC;
-    `;
+    ORDER BY
+      b.departure_date DESC;
+  `;
 
   const rowsResult = await pool.query(rowsQuery, [
     from || null,
@@ -109,7 +106,6 @@ export const getBookingReportData = async (filters = {}) => {
 
   return {
     summary: summaryResult.rows[0],
-
     rows: rowsResult.rows,
   };
 };
@@ -121,71 +117,69 @@ export const getVehicleReportData = async (filters = {}) => {
   const { status } = filters;
 
   /*
-    |--------------------------------------------------------------------------
-    | Summary
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Summary
+  |--------------------------------------------------------------------------
+  */
 
   const summaryQuery = `
-        SELECT
+    SELECT
+      COUNT(*) AS total_vehicles,
 
-            COUNT(*) AS total_vehicles,
+      COUNT(*) FILTER (
+        WHERE status = 'AVAILABLE'
+      ) AS available,
 
-            COUNT(*) FILTER (
-                WHERE status = 'AVAILABLE'
-            ) AS available,
+      COUNT(*) FILTER (
+        WHERE status = 'IN_USE'
+      ) AS in_use,
 
-            COUNT(*) FILTER (
-                WHERE status = 'IN_USE'
-            ) AS in_use,
+      COUNT(*) FILTER (
+        WHERE status = 'MAINTENANCE'
+      ) AS maintenance
 
-            COUNT(*) FILTER (
-                WHERE status = 'MAINTENANCE'
-            ) AS maintenance
+    FROM vehicles
 
-        FROM vehicles
-
-        WHERE
-            ($1::text IS NULL OR status = $1);
-    `;
+    WHERE
+      (
+        $1::text IS NULL
+        OR status = $1::vehicle_status
+      );
+  `;
 
   const summaryResult = await pool.query(summaryQuery, [status || null]);
 
   /*
-    |--------------------------------------------------------------------------
-    | Vehicle Details
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Vehicle Details
+  |--------------------------------------------------------------------------
+  */
 
   const rowsQuery = `
-        SELECT
+    SELECT
+      vehicle_number,
+      vehicle_name,
+      vehicle_type,
+      capacity,
+      driver_name,
+      status
 
-            vehicle_number,
+    FROM vehicles
 
-            vehicle_name,
+    WHERE
+      (
+        $1::text IS NULL
+        OR status = $1::vehicle_status
+      )
 
-            vehicle_type,
-
-            capacity,
-
-            driver_name,
-
-            status
-
-        FROM vehicles
-
-        WHERE
-            ($1::text IS NULL OR status = $1)
-
-        ORDER BY
-            vehicle_number;
-    `;
+    ORDER BY
+      vehicle_number;
+  `;
 
   const rowsResult = await pool.query(rowsQuery, [status || null]);
 
   return {
     summary: summaryResult.rows[0],
-
     rows: rowsResult.rows,
   };
 };
@@ -195,94 +189,86 @@ export const getVehicleReportData = async (filters = {}) => {
  */
 export const getDashboardReportData = async () => {
   /*
-    |--------------------------------------------------------------------------
-    | Booking Summary
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Booking Summary
+  |--------------------------------------------------------------------------
+  */
 
   const bookingSummary = await pool.query(`
-        SELECT
+    SELECT
+      COUNT(*) AS total_bookings,
 
-            COUNT(*) AS total_bookings,
+      COUNT(*) FILTER (
+        WHERE status = 'PENDING'
+      ) AS pending,
 
-            COUNT(*) FILTER (
-                WHERE status = 'PENDING'
-            ) AS pending,
+      COUNT(*) FILTER (
+        WHERE status = 'APPROVED'
+      ) AS approved,
 
-            COUNT(*) FILTER (
-                WHERE status = 'APPROVED'
-            ) AS approved,
+      COUNT(*) FILTER (
+        WHERE status = 'CONFIRMED'
+      ) AS confirmed,
 
-            COUNT(*) FILTER (
-                WHERE status = 'CONFIRMED'
-            ) AS confirmed,
+      COUNT(*) FILTER (
+        WHERE status = 'COMPLETED'
+      ) AS completed,
 
-            COUNT(*) FILTER (
-                WHERE status = 'COMPLETED'
-            ) AS completed,
+      COUNT(*) FILTER (
+        WHERE status = 'CANCELLED'
+      ) AS cancelled
 
-            COUNT(*) FILTER (
-                WHERE status = 'CANCELLED'
-            ) AS cancelled
-
-        FROM bookings;
-    `);
+    FROM bookings;
+  `);
 
   /*
-    |--------------------------------------------------------------------------
-    | Vehicle Summary
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Vehicle Summary
+  |--------------------------------------------------------------------------
+  */
 
   const vehicleSummary = await pool.query(`
-        SELECT
+    SELECT
+      COUNT(*) AS total_vehicles,
 
-            COUNT(*) AS total_vehicles,
+      COUNT(*) FILTER (
+        WHERE status = 'AVAILABLE'
+      ) AS available,
 
-            COUNT(*) FILTER (
-                WHERE status = 'AVAILABLE'
-            ) AS available,
+      COUNT(*) FILTER (
+        WHERE status = 'IN_USE'
+      ) AS in_use,
 
-            COUNT(*) FILTER (
-                WHERE status = 'IN_USE'
-            ) AS in_use,
+      COUNT(*) FILTER (
+        WHERE status = 'MAINTENANCE'
+      ) AS maintenance
 
-            COUNT(*) FILTER (
-                WHERE status = 'MAINTENANCE'
-            ) AS maintenance
-
-        FROM vehicles;
-    `);
+    FROM vehicles;
+  `);
 
   /*
-    |--------------------------------------------------------------------------
-    | Recent Bookings
-    |--------------------------------------------------------------------------
-    */
+  |--------------------------------------------------------------------------
+  | Recent Bookings
+  |--------------------------------------------------------------------------
+  */
 
   const recentBookings = await pool.query(`
-        SELECT
+    SELECT
+      booking_reference,
+      destination,
+      departure_date,
+      status
 
-            booking_reference,
+    FROM bookings
 
-            destination,
+    ORDER BY created_at DESC
 
-            departure_date,
-
-            status
-
-        FROM bookings
-
-        ORDER BY created_at DESC
-
-        LIMIT 10;
-    `);
+    LIMIT 10;
+  `);
 
   return {
     bookingSummary: bookingSummary.rows[0],
-
     vehicleSummary: vehicleSummary.rows[0],
-
     recentBookings: recentBookings.rows,
   };
 };

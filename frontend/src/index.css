@@ -1,8 +1,14 @@
+/* =========================================================
+   Google Fonts
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
 @import "tailwindcss";
 
-/* ================================
-   GLOBAL RESET
-================================ */
+/* =========================================================
+   Reset
+========================================================= */
 
 * {
   margin: 0;
@@ -10,28 +16,35 @@
   box-sizing: border-box;
 }
 
+/* =========================================================
+   Root
+========================================================= */
+
 html,
 body,
 #root {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+/* =========================================================
+   Body
+========================================================= */
 
 body {
-  font-family: "Inter", Arial, sans-serif;
-  background: #f1f3f9;
+  font-family: "Plus Jakarta Sans", "Inter", sans-serif;
+
+  background: #f5f7fc;
+
   color: #111827;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ================================
-   FORM ELEMENTS
-================================ */
+/* =========================================================
+   Form Elements
+========================================================= */
 
 button,
 input,
@@ -50,60 +63,37 @@ textarea {
   outline: none;
 }
 
-/* ================================
-   REMOVE DEFAULT BUTTON STYLES
-================================ */
-
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-}
-
-/* ================================
-   LINKS
-================================ */
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* ================================
-   IMAGES
-================================ */
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-/* ================================
-   SMOOTH TRANSITIONS
-================================ */
+/* =========================================================
+   Smooth Transitions
+========================================================= */
 
 /*
-   Don't use transition: all globally.
-   It can make the dashboard feel slow
-   and can cause unwanted animations.
+  Do NOT use:
+  
+  * {
+    transition: all 0.2s ease;
+  }
+
+  because it causes every element on the page to animate,
+  including layout, width, height, charts, etc.
 */
 
 button,
 a,
 input,
-select {
+select,
+textarea {
   transition:
+    color 0.2s ease,
     background-color 0.2s ease,
     border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease,
-    opacity 0.2s ease;
+    opacity 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* ================================
-   CUSTOM SCROLLBAR
-================================ */
+/* =========================================================
+   Custom Scrollbar
+========================================================= */
 
 ::-webkit-scrollbar {
   width: 8px;
@@ -111,250 +101,14 @@ select {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f3f9;
+  background: #f3f4f6;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c4c7ce;
+  background: #b9b9b9;
   border-radius: 20px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* ================================
-   SELECTION
-================================ */
-
-::selection {
-  background: #5b1e1d;
-  color: white;
-}
-
-/* ================================
-   DASHBOARD COLORS
-================================ */
-
-:root {
-  --vbms-primary: #5b1e1d;
-  --vbms-primary-dark: #481716;
-
-  --vbms-background: #f1f3f9;
-  --vbms-card: #ffffff;
-
-  --vbms-text: #111827;
-  --vbms-muted: #94a3b8;
-
-  --vbms-border: #e5e7eb;
-}
-
-/* ================================
-   PAGE BACKGROUND
-================================ */
-
-.dashboard-bg {
-  background: var(--vbms-background);
-  min-height: 100vh;
-}
-
-/* ================================
-   CARD
-================================ */
-
-.vbms-card {
-  background: var(--vbms-card);
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-}
-
-/* ================================
-   TABLE
-================================ */
-
-.vbms-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.vbms-table th {
-  background: #fafbfc;
-  color: #94a3b8;
-  font-size: 12px;
-  font-weight: 600;
-  text-align: left;
-  padding: 16px 20px;
-  text-transform: uppercase;
-}
-
-.vbms-table td {
-  padding: 18px 20px;
-  border-top: 1px solid #eef0f4;
-  font-size: 14px;
-}
-
-.vbms-table tr:hover {
-  background: #fafafa;
-}
-
-/* ================================
-   STATUS BADGES
-================================ */
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.status-pending {
-  color: #d97706;
-  background: #fffaf0;
-  border: 1px solid #fcd34d;
-}
-
-.status-pending .status-dot {
-  background: #f59e0b;
-}
-
-.status-approved {
-  color: #2563eb;
-  background: #eff6ff;
-  border: 1px solid #93c5fd;
-}
-
-.status-approved .status-dot {
-  background: #3b82f6;
-}
-
-.status-confirmed {
-  color: #059669;
-  background: #ecfdf5;
-  border: 1px solid #6ee7b7;
-}
-
-.status-confirmed .status-dot {
-  background: #10b981;
-}
-
-.status-completed {
-  color: #64748b;
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-}
-
-.status-completed .status-dot {
-  background: #94a3b8;
-}
-
-.status-cancelled {
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fca5a5;
-}
-
-.status-cancelled .status-dot {
-  background: #ef4444;
-}
-
-/* ================================
-   MOBILE TABLE
-================================ */
-
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* ================================
-   PAGE CONTENT
-================================ */
-
-.page-content {
-  min-height: calc(100vh - 78px);
-  background: #f1f3f9;
-}
-
-/* ================================
-   SEARCH INPUT
-================================ */
-
-.search-input {
-  width: 100%;
-  height: 46px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: white;
-  padding: 0 16px;
-  color: #334155;
-}
-
-.search-input::placeholder {
-  color: #94a3b8;
-}
-
-.search-input:focus {
-  border-color: #5b1e1d;
-  box-shadow: 0 0 0 3px rgba(91, 30, 29, 0.08);
-}
-
-/* ================================
-   FILTER BUTTONS
-================================ */
-
-.filter-button {
-  height: 46px;
-  padding: 0 22px;
-  border-radius: 14px;
-  background: white;
-  border: 1px solid #e5e7eb;
-  color: #64748b;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.filter-button:hover {
-  border-color: #5b1e1d;
-  color: #5b1e1d;
-}
-
-.filter-button.active {
-  background: #5b1e1d;
-  color: white;
-  border-color: #5b1e1d;
-}
-
-/* ================================
-   SIDEBAR
-================================ */
-
-.vbms-sidebar {
-  background: #5b1e1d;
-  color: white;
-}
-
-/* ================================
-   RESPONSIVE
-================================ */
-
-@media (max-width: 768px) {
-  .vbms-table th,
-  .vbms-table td {
-    padding: 12px 14px;
-  }
-
-  .filter-button {
-    padding: 0 16px;
-  }
+  background: #8c8c8c;
 }

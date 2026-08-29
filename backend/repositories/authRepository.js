@@ -39,6 +39,40 @@ export const findUserById = async (id) => {
   return result.rows[0] || null;
 };
 
+export const updateUser = async (id, fields) => {
+  const columns = [];
+  const values = [];
+  let i = 1;
+
+  for (const [column, value] of Object.entries(fields)) {
+    columns.push(`${column} = $${i}`);
+    values.push(value);
+    i += 1;
+  }
+
+  columns.push(`updated_at = NOW()`);
+
+  values.push(id);
+
+  const query = `
+    UPDATE users
+    SET ${columns.join(", ")}
+    WHERE id = $${i}
+    RETURNING
+      id,
+      full_name,
+      email,
+      role,
+      department,
+      created_at,
+      updated_at
+  `;
+
+  const result = await pool.query(query, values);
+
+  return result.rows[0] || null;
+};
+
 export const createUser = async ({
   fullName,
   email,
