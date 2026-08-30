@@ -28,9 +28,7 @@ export default function AppShell({ title, subtitle, children }: AppShellProps) {
             padding: "15px",
           }}
         >
-          <div className="p-8 space-y-7 max-w-[1600px] mx-auto">
-            {children}
-          </div>
+          <div className="p-8 space-y-7 max-w-[1600px] mx-auto">{children}</div>
         </main>
       </div>
     </div>

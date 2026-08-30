@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaEye, FaEyeSlash, FaExclamationCircle } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaExclamationCircle, FaUser } from "react-icons/fa";
 
 import SlidePanel from "../common/SlidePanel";
 import { DEPARTMENTS } from "../../constants/departments";
@@ -42,11 +42,16 @@ function toForm(u: ManagedUser): UserForm {
 }
 
 const inputCls =
-  "w-full text-sm bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4C1D1D]/15 focus:border-[#4C1D1D]/40 focus:bg-white transition-all placeholder:text-gray-400";
+  "h-12 w-full rounded-[18px] border border-[#E1E4EA] bg-[#FAFBFC] px-4 text-[15px] text-[#202234] outline-none transition-all placeholder:text-[#A4ACBC] hover:border-[#D5D9E1] focus:border-[#4C1D1D]/45 focus:bg-white focus:ring-4 focus:ring-[#4C1D1D]/[0.07]";
+
 const inputErrCls =
-  "w-full text-sm bg-red-50/30 border border-red-300 rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-400 transition-all placeholder:text-gray-400";
+  "h-12 w-full rounded-[18px] border border-red-300 bg-red-50/30 px-4 text-[15px] text-[#202234] outline-none transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-4 focus:ring-red-100";
+
 const labelCls =
-  "block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1.5";
+  "mb-2 block text-[12px] font-bold uppercase tracking-[0.025em] text-[#596579]";
+
+const sectionCls =
+  "text-[12px] font-bold uppercase tracking-[0.04em] text-[#9AA3B4]";
 
 interface UserFormPanelProps {
   open: boolean;
@@ -87,24 +92,35 @@ export default function UserFormPanel({
     .some((e) => e.toLowerCase() === form.email.trim().toLowerCase());
 
   const errors: Partial<Record<keyof UserForm, string>> = {};
-  if (touched.fullName && !form.fullName.trim())
+
+  if (touched.fullName && !form.fullName.trim()) {
     errors.fullName = "Full name is required";
-  if (touched.email && !form.email.trim()) errors.email = "Email is required";
-  else if (touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+  }
+
+  if (touched.email && !form.email.trim()) {
+    errors.email = "Email is required";
+  } else if (touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = "Enter a valid email address";
-  else if (touched.email && emailDupe)
+  } else if (touched.email && emailDupe) {
     errors.email = "This email is already registered";
-  if (touched.department && !form.department)
+  }
+
+  if (touched.department && !form.department) {
     errors.department = "Department is required";
-  if (touched.password && !editTarget && form.password.length < 6)
+  }
+
+  if (touched.password && !editTarget && form.password.length < 6) {
     errors.password = "Password must be at least 6 characters";
+  }
+
   if (
     touched.password &&
     editTarget &&
     form.password &&
     form.password.length < 6
-  )
+  ) {
     errors.password = "Password must be at least 6 characters";
+  }
 
   const canSave =
     form.fullName.trim() &&
@@ -112,13 +128,16 @@ export default function UserFormPanel({
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
     !emailDupe &&
     form.department &&
-    (editTarget ? !form.password || form.password.length >= 6 : form.password.length >= 6);
+    (editTarget
+      ? !form.password || form.password.length >= 6
+      : form.password.length >= 6);
 
-  function setF<K extends keyof UserForm>(k: K, v: UserForm[K]) {
-    setForm((f) => ({ ...f, [k]: v }));
+  function setF<K extends keyof UserForm>(key: K, value: UserForm[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
   }
-  function touchF(k: keyof UserForm) {
-    setTouched((t) => ({ ...t, [k]: true }));
+
+  function touchF(key: keyof UserForm) {
+    setTouched((current) => ({ ...current, [key]: true }));
   }
 
   async function handleSave() {
@@ -128,6 +147,7 @@ export default function UserFormPanel({
       department: true,
       password: true,
     });
+
     if (!canSave) return;
 
     setSaving(true);
@@ -143,17 +163,21 @@ export default function UserFormPanel({
           isActive: form.isActive,
           ...(form.password ? { password: form.password } : {}),
         };
+
         await onEdit(editTarget.id, payload);
       } else {
-        await onAdd({
+        const payload: CreateUserPayload = {
           fullName: form.fullName.trim(),
           email: form.email.trim().toLowerCase(),
           role: form.role,
           department: form.department,
           isActive: form.isActive,
           password: form.password,
-        });
+        };
+
+        await onAdd(payload);
       }
+
       onClose();
     } catch (err: any) {
       setServerError(
@@ -172,21 +196,28 @@ export default function UserFormPanel({
       title={editTarget ? "Edit User" : "Add New User"}
       subtitle={
         editTarget
-          ? `Editing: ${editTarget.full_name} · ${editTarget.email}`
-          : "Create an account for a new system user. Fields marked * are required."
+          ? `Editing ${editTarget.full_name} · ${editTarget.email}`
+          : "Enter the user details below. Fields marked * are required."
       }
+      panelClassName="sm:max-w-[540px]"
+      headerClassName="px-7 py-6 sm:px-8 sm:py-7"
+      contentClassName="px-7 py-6 sm:px-8 sm:py-7 space-y-0"
+      footerClassName="px-7 py-4 sm:px-8 sm:py-5"
       footer={
-        <div className="flex gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <button
+            type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 border border-gray-200 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-100 transition-colors"
+            className="h-12 rounded-[18px] border border-[#E0E4EA] bg-white text-sm font-semibold text-[#566174] transition-colors hover:bg-gray-50"
           >
             Cancel
           </button>
+
           <button
+            type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 py-2.5 bg-[#4C1D1D] text-white rounded-xl text-sm font-bold hover:bg-[#3A1515] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+            className="flex h-12 items-center justify-center gap-2 rounded-[18px] bg-[#5A1E1E] text-sm font-bold text-white shadow-sm transition-all hover:bg-[#481717] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? "Saving…" : editTarget ? "Save Changes" : "Add User"}
           </button>
@@ -194,16 +225,65 @@ export default function UserFormPanel({
       }
     >
       {serverError && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl px-4 py-3">
+        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-700">
           {serverError}
         </div>
       )}
 
+      {/* User preview card */}
+      <div
+        className="mb-6 flex min-h-[100px] items-center gap-4 rounded-[22px] border border-[#E7DDDD] bg-[#FCF9F9] px-5 py-5 sm:px-6"
+        style={{ padding: "15px", marginBottom: "10px" }}
+      >
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#641F1F] text-white shadow-sm">
+          {form.fullName.trim() ? (
+            <span className="text-[16px] font-bold">
+              {initials(form.fullName)}
+            </span>
+          ) : (
+            <FaUser className="h-6 w-6" />
+          )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[16px] font-bold leading-6 text-[#242638]">
+            {form.fullName.trim() || "New User"}
+          </p>
+
+          <p className="mt-0.5 truncate text-[13px] leading-5 text-[#7B8496]">
+            {form.email.trim() || "Email address not entered"}
+          </p>
+
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${ROLE_BADGE_STYLE[form.role]}`}
+            >
+              {ROLE_LABEL[form.role]}
+            </span>
+
+            <span
+              className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                form.isActive
+                  ? "bg-emerald-50 text-emerald-700"
+                  : "bg-gray-100 text-gray-500"
+              }`}
+            >
+              {form.isActive ? "Active" : "Inactive"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <p className={`${sectionCls} mb-5`} style={{ marginBottom: "5px" }}>
+        User Information
+      </p>
+
       {/* Full Name */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-5" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           Full Name <span className="text-red-500">*</span>
         </label>
+
         <input
           value={form.fullName}
           onChange={(e) => setF("fullName", e.target.value)}
@@ -211,19 +291,21 @@ export default function UserFormPanel({
           placeholder="e.g. Siti Aminah Binti Razali"
           className={errors.fullName ? inputErrCls : inputCls}
         />
+
         {errors.fullName && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.fullName}
           </p>
         )}
       </div>
 
       {/* Email */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-5" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           Email Address <span className="text-red-500">*</span>
         </label>
+
         <input
           type="email"
           value={form.email}
@@ -232,20 +314,25 @@ export default function UserFormPanel({
           placeholder="e.g. siti@uni.edu.my"
           className={errors.email ? inputErrCls : inputCls}
         />
+
         {errors.email && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.email}
           </p>
         )}
       </div>
 
       {/* Role + Status */}
-      <div className="grid grid-cols-2 gap-3">
+      <div
+        className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2"
+        style={{ marginBottom: "10px" }}
+      >
         <div>
-          <label className={labelCls}>
+          <label className={labelCls} style={{ marginBottom: "5px" }}>
             Role <span className="text-red-500">*</span>
           </label>
+
           <select
             value={form.role}
             onChange={(e) => setF("role", e.target.value as UserRole)}
@@ -256,38 +343,50 @@ export default function UserFormPanel({
             <option value="ADMIN">Admin</option>
           </select>
         </div>
+
         <div>
-          <label className={labelCls}>Account Status</label>
-          <div className="flex items-center h-[42px] gap-3">
-            <button
-              type="button"
-              onClick={() => setF("isActive", !form.isActive)}
-              className={`relative w-11 h-6 rounded-full transition-colors ${
-                form.isActive ? "bg-emerald-500" : "bg-gray-300"
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  form.isActive ? "translate-x-5" : "translate-x-0"
-                }`}
-              />
-            </button>
+          <label className={labelCls} style={{ marginBottom: "5px" }}>
+            Account Status
+          </label>
+
+          <button
+            type="button"
+            onClick={() => setF("isActive", !form.isActive)}
+            className={`flex h-12 w-full items-center justify-between rounded-[18px] border px-4 transition-all ${
+              form.isActive
+                ? "border-emerald-200 bg-emerald-50/70"
+                : "border-[#E1E4EA] bg-[#FAFBFC]"
+            }`}
+          >
             <span
-              className={`text-xs font-semibold ${
-                form.isActive ? "text-emerald-600" : "text-gray-400"
+              className={`text-[13px] font-semibold ${
+                form.isActive ? "text-emerald-700" : "text-[#7B8496]"
               }`}
             >
               {form.isActive ? "Active" : "Inactive"}
             </span>
-          </div>
+
+            <span
+              className={`relative h-6 w-11 rounded-full transition-colors ${
+                form.isActive ? "bg-emerald-500" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
+                  form.isActive ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </span>
+          </button>
         </div>
       </div>
 
       {/* Department */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-5" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           Department <span className="text-red-500">*</span>
         </label>
+
         <select
           value={form.department}
           onChange={(e) => setF("department", e.target.value)}
@@ -295,34 +394,42 @@ export default function UserFormPanel({
           className={errors.department ? inputErrCls : inputCls}
         >
           <option value="">Select department…</option>
-          {DEPARTMENTS.map((d) => (
-            <option key={d}>{d}</option>
+          {DEPARTMENTS.map((department) => (
+            <option key={department} value={department}>
+              {department}
+            </option>
           ))}
         </select>
+
         {errors.department && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.department}
           </p>
         )}
       </div>
 
+      <p className={`${sectionCls} mb-5 mt-6`} style={{ marginBottom: "5px" }}>
+        {editTarget ? "Change Password" : "Password"}
+      </p>
+
       {/* Password */}
-      <div>
-        <label className={labelCls}>
+      <div className="mb-2" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           {editTarget ? (
-            "Change Password"
+            <>
+              New Password
+              <span className="ml-1 normal-case font-normal text-[#A0A7B5]">
+                (optional)
+              </span>
+            </>
           ) : (
             <>
               Initial Password <span className="text-red-500">*</span>
             </>
           )}
-          {editTarget && (
-            <span className="ml-1 text-gray-400 font-normal normal-case">
-              (leave blank to keep current)
-            </span>
-          )}
         </label>
+
         <div className="relative">
           <input
             type={showPw ? "text" : "password"}
@@ -334,57 +441,36 @@ export default function UserFormPanel({
                 ? "Leave blank to keep current password"
                 : "Min. 6 characters"
             }
-            className={(errors.password ? inputErrCls : inputCls) + " pr-10"}
+            className={`${errors.password ? inputErrCls : inputCls} pr-12`}
           />
+
           <button
             type="button"
-            onClick={() => setShowPw((p) => !p)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            onClick={() => setShowPw((current) => !current)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A4ACBC] transition-colors hover:text-[#596579]"
+            aria-label={showPw ? "Hide password" : "Show password"}
           >
             {showPw ? (
-              <FaEyeSlash className="w-4 h-4" />
+              <FaEyeSlash className="h-4 w-4" />
             ) : (
-              <FaEye className="w-4 h-4" />
+              <FaEye className="h-4 w-4" />
             )}
           </button>
         </div>
+
         {errors.password && (
-          <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
-            <FaExclamationCircle className="w-3 h-3" />
+          <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
+            <FaExclamationCircle className="h-3 w-3" />
             {errors.password}
           </p>
         )}
-      </div>
 
-      {/* Preview */}
-      {form.fullName && form.email && (
-        <div className="bg-[#4C1D1D]/[0.04] border border-[#4C1D1D]/10 rounded-xl p-4">
-          <p className="text-[10px] font-bold text-[#4C1D1D] uppercase tracking-widest mb-2">
-            Preview
+        {editTarget && !errors.password && (
+          <p className="mt-1.5 text-[11px] text-[#A0A7B5]">
+            Leave this field blank to keep the current password.
           </p>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#4C1D1D] flex items-center justify-center text-white text-xs font-bold shrink-0">
-              {initials(form.fullName)}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-[#1C1C2E] truncate">
-                {form.fullName}
-              </p>
-              <p className="text-xs text-gray-500 truncate">{form.email}</p>
-              <p className="text-xs text-gray-400 mt-0.5 truncate">
-                {ROLE_LABEL[form.role]} &bull; {form.department || "No department"}
-              </p>
-            </div>
-            <div className="ml-auto shrink-0">
-              <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${ROLE_BADGE_STYLE[form.role]}`}
-              >
-                {ROLE_LABEL[form.role]}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </SlidePanel>
   );
 }

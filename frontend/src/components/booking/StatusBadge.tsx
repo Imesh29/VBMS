@@ -1,17 +1,25 @@
-type BookingStatus =
-  | "Pending"
-  | "Approved"
-  | "Confirmed"
-  | "Completed"
-  | "Cancelled";
+import type { BookingStatus } from "../../data/bookingData";
 
 interface StatusBadgeProps {
   status: BookingStatus;
 }
 
+/**
+ * Displays a styled status badge for a booking.
+ *
+ * Supported statuses:
+ * - Pending
+ * - Approved
+ * - Confirmed
+ * - Completed
+ * - Cancelled
+ */
 export default function StatusBadge({
   status,
 }: StatusBadgeProps) {
+  /**
+   * Badge colours for each booking status.
+   */
   const styles: Record<BookingStatus, string> = {
     Pending:
       "border-amber-300 bg-amber-50 text-amber-600",
@@ -29,6 +37,9 @@ export default function StatusBadge({
       "border-red-300 bg-red-50 text-red-600",
   };
 
+  /**
+   * Small indicator-dot colour for each status.
+   */
   const dots: Record<BookingStatus, string> = {
     Pending: "bg-amber-400",
     Approved: "bg-blue-400",
@@ -39,10 +50,33 @@ export default function StatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${styles[status]}`}
+      className={`
+        inline-flex
+        items-center
+        gap-2
+
+        rounded-full
+        border
+
+        px-3
+        py-1
+
+        text-xs
+        font-medium
+
+        ${styles[status]}
+      `}
     >
+      {/* Status indicator */}
       <span
-        className={`h-1.5 w-1.5 rounded-full ${dots[status]}`}
+        className={`
+          h-1.5
+          w-1.5
+
+          rounded-full
+
+          ${dots[status]}
+        `}
       />
 
       {status}
