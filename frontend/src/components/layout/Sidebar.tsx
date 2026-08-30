@@ -9,6 +9,14 @@ import {
 
 import { NavLink } from "react-router-dom";
 
+/**
+ * Sidebar navigation items.
+ *
+ * Each item contains:
+ * - Display name
+ * - Route path
+ * - Icon
+ */
 const menuItems = [
   {
     name: "Dashboard",
@@ -22,7 +30,7 @@ const menuItems = [
   },
   {
     name: "Add Booking",
-    path: "/bookings/add",
+    path: "/add-booking",
     icon: FaPlusCircle,
   },
 ];
@@ -32,19 +40,19 @@ export default function Sidebar() {
     <aside
       className="
         hidden
-        lg:flex
-        w-[280px]
         min-h-screen
+        w-[280px]
+        shrink-0
         flex-col
         bg-[#511D1D]
         text-white
-        shrink-0
+        lg:flex
       "
     >
-
-      {/* Logo */}
-      <div className="h-[80px] border-b border-white/10 px-5 flex items-center">
-
+      {/* =====================================================
+          LOGO / BRAND
+      ====================================================== */}
+      <div className="flex h-[80px] items-center border-b border-white/10 px-5">
         <div
           className="
             flex
@@ -60,7 +68,7 @@ export default function Sidebar() {
         </div>
 
         <div className="ml-3 flex-1">
-          <h1 className="font-bold text-lg">
+          <h1 className="text-lg font-bold">
             VBMS
           </h1>
 
@@ -73,12 +81,12 @@ export default function Sidebar() {
           className="text-white/40"
           size={12}
         />
-
       </div>
 
-      {/* User role */}
+      {/* =====================================================
+          USER ROLE
+      ====================================================== */}
       <div className="px-3 pt-5">
-
         <div
           className="
             flex
@@ -95,18 +103,17 @@ export default function Sidebar() {
             Staff
           </span>
         </div>
-
       </div>
 
-      {/* Navigation */}
+      {/* =====================================================
+          NAVIGATION
+      ====================================================== */}
       <div className="px-3 pt-5">
-
         <p className="px-3 text-xs uppercase tracking-wider text-white/40">
           Navigation
         </p>
 
         <nav className="mt-4 space-y-1">
-
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -116,45 +123,47 @@ export default function Sidebar() {
                 to={item.path}
                 className={({ isActive }) =>
                   `
-                  group
-                  flex
-                  items-center
-                  gap-4
-                  rounded-2xl
-                  px-4
-                  py-3
-                  text-sm
-                  transition-all
-                  ${
-                    isActive
-                      ? "bg-white/15 text-white"
-                      : "text-white/65 hover:bg-white/10 hover:text-white"
-                  }
+                    group
+                    flex
+                    items-center
+                    gap-4
+                    rounded-2xl
+                    px-4
+                    py-3
+                    text-sm
+                    transition-all
+                    ${
+                      isActive
+                        ? "bg-white/15 text-white"
+                        : "text-white/65 hover:bg-white/10 hover:text-white"
+                    }
                   `
                 }
               >
+                {/* Navigation icon */}
                 <Icon size={17} />
 
+                {/* Navigation label */}
                 <span className="flex-1">
                   {item.name}
                 </span>
 
+                {/* Small indicator for Bookings */}
                 {item.name === "Bookings" && (
                   <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
                 )}
               </NavLink>
             );
           })}
-
         </nav>
-
       </div>
 
-      {/* Bottom profile */}
+      {/* =====================================================
+          BOTTOM USER PROFILE
+      ====================================================== */}
       <div className="mt-auto border-t border-white/10 p-4">
-
         <div className="flex items-center gap-3">
-
+          {/* User avatar */}
           <div
             className="
               flex
@@ -172,8 +181,8 @@ export default function Sidebar() {
             AZ
           </div>
 
+          {/* User information */}
           <div className="min-w-0 flex-1">
-
             <p className="truncate text-sm font-semibold">
               Dr. Amirah
             </p>
@@ -181,9 +190,9 @@ export default function Sidebar() {
             <p className="truncate text-xs text-white/50">
               Computer Science
             </p>
-
           </div>
 
+          {/* Logout button */}
           <button
             type="button"
             title="Logout"
@@ -191,11 +200,8 @@ export default function Sidebar() {
           >
             <FaSignOutAlt size={15} />
           </button>
-
         </div>
-
       </div>
-
     </aside>
   );
 }

@@ -11,6 +11,7 @@ import Register from "./pages/RegisterPage";
 import Reports from "./pages/ReportsPage";
 import Users from "./pages/UsersPage";
 import Vehicles from "./pages/VehiclesPage";
+import BookingFormPage from "./pages/BookingFormPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -36,6 +37,26 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected: Bookings */}
+        <Route
+          path="/bookings"
+          element={
+            <ProtectedRoute>
+              <BookingFormPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected: Add Booking */}
+        <Route
+          path="/add-booking"
+          element={
+            <ProtectedRoute>
+              <BookingFormPage />
             </ProtectedRoute>
           }
         />
