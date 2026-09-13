@@ -1,46 +1,80 @@
 import api from "./axios";
 
+import type {
+  Booking,
+  BookingListResponse,
+  CreateBookingPayload,
+} from "../types/booking";
+
 export interface GetBookingsParams {
   status?: string;
+
   vehicle?: string;
+
   date?: string;
+
   page?: number;
+
   limit?: number;
+
   sort?:
     | "created_at"
     | "departure_date"
     | "return_date"
     | "status"
     | "booking_reference";
+
   order?: "ASC" | "DESC";
 }
 
 /**
- * Get bookings for the logged-in user (USER role only).
- * Supports filtering, pagination and sorting.
- * GET /api/bookings
+ * Logged-in Staff user's bookings.
  */
-export const getBookings = async (params?: GetBookingsParams) => {
-  const response = await api.get("/bookings", { params });
-  return response.data;
+export const getMyBookings = async (
+  params: GetBookingsParams = {},
+): Promise<BookingListResponse> => {
+  const response = await api.get("/bookings", {
+    params,
+  });
+
+  return response.data.data;
 };
 
-export const getBooking = async (id: number) => {
+/**
+ * Get one booking.
+ */
+export const getBooking = async (id: string): Promise<Booking> => {
   const response = await api.get(`/bookings/${id}`);
-  return response.data;
+
+  return response.data.data;
 };
 
-export const createBooking = async (data: any) => {
-  const response = await api.post("/bookings", data);
-  return response.data;
+/**
+ * Create booking.
+ */
+export const createBooking = async (
+  payload: CreateBookingPayload,
+): Promise<Booking> => {
+  const response = await api.post("/bookings", payload);
+
+  return response.data.data;
 };
 
-export const updateBooking = async (id: number, data: any) => {
-  const response = await api.put(`/bookings/${id}`, data);
-  return response.data;
+/**
+ * Update booking.
+ */
+export const updateBooking = async (
+  id: string,
+  payload: CreateBookingPayload,
+): Promise<Booking> => {
+  const response = await api.put(`/bookings/${id}`, payload);
+
+  return response.data.data;
 };
 
-export const deleteBooking = async (id: number) => {
-  const response = await api.delete(`/bookings/${id}`);
-  return response.data;
+/**
+ * Delete booking.
+ */
+export const deleteBooking = async (id: string): Promise<void> => {
+  await api.delete(`/bookings/${id}`);
 };

@@ -1,20 +1,20 @@
 import api from "./axios";
 
+import type { Booking } from "../types/booking";
+
 /**
- * Get all pending bookings (Dean only).
- * GET /api/dean/bookings
+ * Get pending bookings.
  */
-export const getPendingBookings = async () => {
+export const getPendingBookings = async (): Promise<Booking[]> => {
   const response = await api.get("/dean/bookings");
 
   return response.data.data;
 };
 
 /**
- * Approve a booking (Dean only).
- * PATCH /api/dean/bookings/:id/approve
+ * Approve booking.
  */
-export const approveBooking = async (id: string) => {
+export const approveBooking = async (id: string): Promise<Booking> => {
   const response = await api.patch(`/dean/bookings/${id}/approve`);
 
   return response.data.data;

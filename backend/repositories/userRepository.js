@@ -139,3 +139,28 @@ export const deleteUser = async (id) => {
 
   return result.rows[0] || null;
 };
+
+/**
+ * Find active users by role.
+ * Used for role-based notifications/email recipients.
+ */
+export const findActiveUsersByRole = async (role) => {
+  const result = await pool.query(
+    `
+      SELECT
+        id,
+        full_name,
+        email,
+        role,
+        department,
+        is_active
+      FROM users
+      WHERE role = $1
+        AND is_active = TRUE
+      ORDER BY full_name ASC;
+    `,
+    [role],
+  );
+
+  return result.rows;
+};

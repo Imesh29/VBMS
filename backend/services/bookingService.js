@@ -2,6 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 
 import * as bookingRepository from "../repositories/bookingRepository.js";
 import * as vehicleRepository from "../repositories/vehicleRepository.js";
+import * as userRepository from "../repositories/userRepository.js";
+import * as notificationService from "./notificationService.js";
+import * as emailService from "./emailService.js";
 import createError from "../utils/createError.js";
 
 // Generate booking reference
@@ -62,7 +65,46 @@ export const createBooking = async (userId, bookingData) => {
     status: "PENDING",
   };
 
-  return await bookingRepository.createBooking(booking);
+  const createdBooking = await bookingRepository.createBooking(booking);
+
+  // Notification delivery should not make a valid booking fail.
+  try {
+    const requester = await userRepository.findUserById(userId);
+    const deans = await userRepository.findActiveUsersByRole("DEAN");
+
+    await notificationService.createForUser({
+      userId,
+      bookingId: createdBooking.id,
+      type: "BOOKING_CREATED",
+      title: "Booking request submitted",
+      message: `Your booking ${createdBooking.booking_reference} was submitted and is waiting for Dean approval.`,
+    });
+
+    if (deans.length > 0) {
+      await notificationService.createForUsers({
+        userIds: deans.map((dean) => dean.id),
+        bookingId: createdBooking.id,
+        type: "BOOKING_PENDING_DEAN",
+        title: "New booking request",
+        message: `${requester?.full_name || "A staff member"} submitted booking ${createdBooking.booking_reference} for ${createdBooking.destination}.`,
+      });
+
+      await Promise.allSettled(
+        deans.map((dean) =>
+          emailService.sendNewBookingToDean({
+            dean,
+            requester,
+            booking: createdBooking,
+            vehicle,
+          }),
+        ),
+      );
+    }
+  } catch (notificationError) {
+    console.error("Booking notification/email delivery failed:", notificationError);
+  }
+
+  return createdBooking;
 };
 
 /**
@@ -169,6 +211,7 @@ export const updateBooking = async (bookingId, userId, bookingData) => {
     bookingData.vehicleId,
     bookingData.departureDate,
     bookingData.returnDate,
+    bookingId,
   );
 
   if (conflictingBookings.length > 0) {
@@ -189,7 +232,19 @@ export const updateBooking = async (bookingId, userId, bookingData) => {
     throw createError("Return date must be later than departure date.", 400);
   }
 
-  return await bookingRepository.updateBooking(bookingId, bookingData);
+  const updatedBooking = await bookingRepository.updateBooking(bookingId, bookingData);
+
+  // Protect against a race where the Dean approves the request while
+  // the staff member is submitting an edit. The repository only updates
+  // rows that are still PENDING.
+  if (!updatedBooking) {
+    throw createError(
+      "This booking is no longer pending and cannot be updated.",
+      409,
+    );
+  }
+
+  return updatedBooking;
 };
 
 /**

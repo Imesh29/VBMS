@@ -99,17 +99,18 @@ export const completeBooking = async (bookingId) => {
 /**
  * Cancel booking
  */
-export const cancelBooking = async (bookingId) => {
+export const cancelBooking = async (bookingId, reason) => {
   const query = `
         UPDATE bookings
         SET
             status = 'CANCELLED',
+            cancellation_reason = $2,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = $1
         RETURNING *;
     `;
 
-  const result = await pool.query(query, [bookingId]);
+  const result = await pool.query(query, [bookingId, reason]);
 
   return result.rows[0] || null;
 };

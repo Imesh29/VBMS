@@ -1,51 +1,59 @@
 import api from "./axios";
 
+import type { Booking, BookingListResponse } from "../types/booking";
+
+import type { GetBookingsParams } from "./bookingApi";
+
 /**
- * Get all approved bookings (Admin only).
- * GET /api/admin/bookings
+ * Existing approved-only endpoint.
  */
-export const getApprovedBookings = async () => {
+export const getApprovedBookings = async (): Promise<Booking[]> => {
   const response = await api.get("/admin/bookings");
 
   return response.data.data;
 };
 
 /**
- * Get all vehicles (Admin only).
- * GET /api/admin/vehicles
+ * Get ALL bookings.
+ *
+ * GET /api/admin/bookings/all
  */
-export const getAllVehicles = async () => {
-  const response = await api.get("/admin/vehicles");
+export const getAllBookings = async (
+  params: GetBookingsParams = {},
+): Promise<BookingListResponse> => {
+  const response = await api.get("/admin/bookings/all", {
+    params,
+  });
 
   return response.data.data;
 };
 
 /**
- * Confirm a booking (Admin only).
- * PATCH /api/admin/bookings/:id/confirm
+ * Confirm booking.
  */
-export const confirmBooking = async (id: string) => {
+export const confirmBooking = async (id: string): Promise<Booking> => {
   const response = await api.patch(`/admin/bookings/${id}/confirm`);
 
   return response.data.data;
 };
 
 /**
- * Complete a booking (Admin only).
- * PATCH /api/admin/bookings/:id/complete
+ * Complete booking.
  */
-export const completeBooking = async (id: string) => {
+export const completeBooking = async (id: string): Promise<Booking> => {
   const response = await api.patch(`/admin/bookings/${id}/complete`);
 
   return response.data.data;
 };
 
 /**
- * Cancel a booking (Admin only).
- * PATCH /api/admin/bookings/:id/cancel
+ * Cancel booking.
  */
-export const cancelBooking = async (id: string) => {
-  const response = await api.patch(`/admin/bookings/${id}/cancel`);
+export const cancelBooking = async (
+  id: string,
+  reason: string,
+): Promise<Booking> => {
+  const response = await api.patch(`/admin/bookings/${id}/cancel`, { reason });
 
   return response.data.data;
 };

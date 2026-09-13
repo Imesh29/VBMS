@@ -1,25 +1,23 @@
 import * as adminRepository from "../repositories/adminRepository.js";
+import * as bookingRepository from "../repositories/bookingRepository.js";
+import * as notificationService from "./notificationService.js";
 import createError from "../utils/createError.js";
 
-/**
- * Get all approved bookings
- */
 export const getApprovedBookings = async () => {
   return await adminRepository.getApprovedBookings();
 };
 
-/**
- * Confirm a booking
- */
+export const getAllBookings = async (filters = {}) => {
+  return await bookingRepository.findAllBookings(filters);
+};
+
 export const confirmBooking = async (bookingId) => {
-  // Check booking exists
   const booking = await adminRepository.findBookingById(bookingId);
 
   if (!booking) {
     throw createError("Booking not found.", 404);
   }
 
-  // Only approved bookings can be confirmed
   if (booking.status !== "APPROVED") {
     throw createError(
       `Only approved bookings can be confirmed. Current status: ${booking.status}.`,
@@ -27,21 +25,30 @@ export const confirmBooking = async (bookingId) => {
     );
   }
 
-  return await adminRepository.confirmBooking(bookingId);
+  const confirmedBooking = await adminRepository.confirmBooking(bookingId);
+
+  try {
+    await notificationService.createForUser({
+      userId: booking.user_id,
+      bookingId: booking.id,
+      type: "BOOKING_CONFIRMED",
+      title: "Booking confirmed by Admin",
+      message: `Your booking ${booking.booking_reference} has been confirmed by Admin.`,
+    });
+  } catch (notificationError) {
+    console.error("Confirmation notification delivery failed:", notificationError);
+  }
+
+  return confirmedBooking;
 };
 
-/**
- * Complete a booking
- */
 export const completeBooking = async (bookingId) => {
-  // Check booking exists
   const booking = await adminRepository.findBookingById(bookingId);
 
   if (!booking) {
     throw createError("Booking not found.", 404);
   }
 
-  // Only confirmed bookings can be completed
   if (booking.status !== "CONFIRMED") {
     throw createError(
       `Only confirmed bookings can be completed. Current status: ${booking.status}.`,
@@ -49,22 +56,58 @@ export const completeBooking = async (bookingId) => {
     );
   }
 
-  return await adminRepository.completeBooking(bookingId);
+  const completedBooking = await adminRepository.completeBooking(bookingId);
+
+  try {
+    await notificationService.createForUser({
+      userId: booking.user_id,
+      bookingId: booking.id,
+      type: "BOOKING_COMPLETED",
+      title: "Booking completed",
+      message: `Your booking ${booking.booking_reference} has been marked as completed.`,
+    });
+  } catch (notificationError) {
+    console.error("Completion notification delivery failed:", notificationError);
+  }
+
+  return completedBooking;
 };
 
-export const cancelBooking = async (bookingId) => {
+export const cancelBooking = async (bookingId, reason) => {
   const booking = await adminRepository.findBookingById(bookingId);
 
   if (!booking) {
     throw createError("Booking not found.", 404);
   }
 
-  if (booking.status === "COMPLETED" || booking.status === "CANCELLED") {
+  if (!reason || !reason.trim()) {
+    throw createError("Cancellation reason is required.", 400);
+  }
+
+  if (!["APPROVED", "CONFIRMED"].includes(booking.status)) {
     throw createError(
-      `Booking cannot be cancelled. Current status: ${booking.status}.`,
+      `Only approved or confirmed bookings can be cancelled by Admin. Current status: ${booking.status}.`,
       409,
     );
   }
 
-  return await adminRepository.cancelBooking(bookingId);
+  const cleanReason = reason.trim();
+  const cancelledBooking = await adminRepository.cancelBooking(
+    bookingId,
+    cleanReason,
+  );
+
+  try {
+    await notificationService.createForUser({
+      userId: booking.user_id,
+      bookingId: booking.id,
+      type: "BOOKING_CANCELLED",
+      title: "Booking cancelled by Admin",
+      message: `Your booking ${booking.booking_reference} was cancelled. Reason: ${cleanReason}`,
+    });
+  } catch (notificationError) {
+    console.error("Cancellation notification delivery failed:", notificationError);
+  }
+
+  return cancelledBooking;
 };
