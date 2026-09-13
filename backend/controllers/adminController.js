@@ -2,11 +2,13 @@ import { validationResult } from "express-validator";
 
 import * as adminService from "../services/adminService.js";
 
-import { successResponse, errorResponse } from "../utils/response.js";
 import * as vehicleService from "../services/vehicleService.js";
 
+import { successResponse, errorResponse } from "../utils/response.js";
+
 /**
- * Get all approved bookings
+ * Get approved bookings.
+ *
  * GET /api/admin/bookings
  */
 export const getApprovedBookings = async (req, res, next) => {
@@ -25,8 +27,37 @@ export const getApprovedBookings = async (req, res, next) => {
 };
 
 /**
- * Confirm booking
- * PATCH /api/admin/bookings/:id/confirm
+ * Get ALL bookings.
+ *
+ * GET /api/admin/bookings/all
+ */
+export const getAllBookings = async (req, res, next) => {
+  try {
+    const { status, vehicle, date, page, limit, sort, order } = req.query;
+
+    const bookings = await adminService.getAllBookings({
+      status,
+      vehicle,
+      date,
+      page,
+      limit,
+      sort,
+      order,
+    });
+
+    return successResponse(
+      res,
+      200,
+      "All bookings retrieved successfully.",
+      bookings,
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Confirm booking.
  */
 export const confirmBooking = async (req, res, next) => {
   try {
@@ -50,8 +81,7 @@ export const confirmBooking = async (req, res, next) => {
 };
 
 /**
- * Complete booking
- * PATCH /api/admin/bookings/:id/complete
+ * Complete booking.
  */
 export const completeBooking = async (req, res, next) => {
   try {
@@ -74,8 +104,9 @@ export const completeBooking = async (req, res, next) => {
   }
 };
 
-// Get all vehicles
-
+/**
+ * Get all vehicles.
+ */
 export const getAllVehicles = async (req, res, next) => {
   try {
     const vehicles = await vehicleService.getAllVehicles();
@@ -92,8 +123,7 @@ export const getAllVehicles = async (req, res, next) => {
 };
 
 /**
- * Cancel booking
- * PATCH /api/admin/bookings/:id/cancel
+ * Cancel booking.
  */
 export const cancelBooking = async (req, res, next) => {
   try {
@@ -103,7 +133,7 @@ export const cancelBooking = async (req, res, next) => {
       return errorResponse(res, 400, "Validation failed.", errors.array());
     }
 
-    const booking = await adminService.cancelBooking(req.params.id);
+    const booking = await adminService.cancelBooking(req.params.id, req.body.reason);
 
     return successResponse(
       res,
