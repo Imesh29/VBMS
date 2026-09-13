@@ -31,7 +31,8 @@ const ROLE_LABEL: Record<string, string> = {
 
 function initials(name: string) {
   return name
-    .split(" ")
+    .trim()
+    .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
@@ -39,12 +40,18 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+/*
+ * Keep these styles aligned with VehicleFormPanel.
+ */
 const inputCls =
   "h-12 w-full rounded-[18px] border border-[#E1E4EA] bg-[#FAFBFC] px-4 text-[15px] text-[#202234] outline-none transition-all placeholder:text-[#A4ACBC] hover:border-[#D5D9E1] focus:border-[#4C1D1D]/45 focus:bg-white focus:ring-4 focus:ring-[#4C1D1D]/[0.07]";
+
 const inputErrCls =
   "h-12 w-full rounded-[18px] border border-red-300 bg-red-50/30 px-4 text-[15px] text-[#202234] outline-none transition-all placeholder:text-gray-400 focus:border-red-400 focus:ring-4 focus:ring-red-100";
+
 const labelCls =
   "mb-2 block text-[12px] font-bold uppercase tracking-[0.025em] text-[#596579]";
+
 const sectionCls =
   "text-[12px] font-bold uppercase tracking-[0.04em] text-[#9AA3B4]";
 
@@ -58,10 +65,13 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
     newPassword: "",
     confirmPassword: "",
   });
+
   const [touched, setTouched] = useState<
     Partial<Record<keyof AccountForm, boolean>>
   >({});
-  const [showPw, setShowPw] = useState(false);
+
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -75,30 +85,40 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         newPassword: "",
         confirmPassword: "",
       });
+
       setTouched({});
-      setShowPw(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+      setSaving(false);
       setSaved(false);
       setServerError(null);
     }
   }, [open, user]);
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   const errors: Partial<Record<keyof AccountForm, string>> = {};
+
   if (touched.fullName && !form.fullName.trim()) {
     errors.fullName = "Name is required";
   }
+
   if (touched.email && !form.email.trim()) {
     errors.email = "Email is required";
   } else if (touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = "Enter a valid email address";
   }
+
   if (touched.department && !form.department) {
     errors.department = "Department is required";
   }
+
   if (touched.newPassword && form.newPassword && form.newPassword.length < 6) {
     errors.newPassword = "Password must be at least 6 characters";
   }
+
   if (
     touched.confirmPassword &&
     form.newPassword &&
@@ -108,20 +128,29 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
   }
 
   const canSave =
-    form.fullName.trim() &&
-    form.email.trim() &&
+    Boolean(form.fullName.trim()) &&
+    Boolean(form.email.trim()) &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) &&
-    form.department &&
+    Boolean(form.department) &&
     (!form.newPassword ||
       (form.newPassword.length >= 6 &&
         form.newPassword === form.confirmPassword));
 
-  function setF<K extends keyof AccountForm>(k: K, v: AccountForm[K]) {
-    setForm((f) => ({ ...f, [k]: v }));
+  function setField<K extends keyof AccountForm>(
+    key: K,
+    value: AccountForm[K],
+  ) {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
   }
 
-  function touchF(k: keyof AccountForm) {
-    setTouched((t) => ({ ...t, [k]: true }));
+  function touchField(key: keyof AccountForm) {
+    setTouched((current) => ({
+      ...current,
+      [key]: true,
+    }));
   }
 
   async function handleSave() {
@@ -130,10 +159,12 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
       email: true,
       department: true,
       newPassword: true,
-      confirmPassword: !!form.newPassword,
+      confirmPassword: Boolean(form.newPassword),
     });
 
-    if (!canSave) return;
+    if (!canSave) {
+      return;
+    }
 
     setSaving(true);
     setServerError(null);
@@ -147,7 +178,10 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
       });
 
       setSaved(true);
-      setTimeout(onClose, 1400);
+
+      window.setTimeout(() => {
+        onClose();
+      }, 1200);
     } catch (err: any) {
       setServerError(
         err?.response?.data?.message ||
@@ -171,7 +205,8 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
       footer={
         saved ? (
           <div className="flex min-h-12 items-center justify-center gap-2 text-sm font-semibold text-emerald-600">
-            <FaCheck className="h-3.5 w-3.5" /> Changes saved successfully
+            <FaCheck className="h-3.5 w-3.5" />
+            Changes saved successfully
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4">
@@ -182,6 +217,7 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
             >
               Cancel
             </button>
+
             <button
               type="button"
               onClick={handleSave}
@@ -200,45 +236,48 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         </div>
       )}
 
-      {/* Identity card */}
+      {/* Account identity card */}
       <div
-        className="mb-5 flex min-h-[100px] items-center gap-4 rounded-[22px] border border-[#E7DDDD] bg-[#FCF9F9] px-5 py-5 sm:px-6"
-        style={{ padding: "15px", marginBottom: "20px" }}
+        className="mb-6 flex min-h-[112px] items-center gap-4 rounded-[22px] border border-[#E7DDDD] bg-[#FCF9F9] px-5 py-5 sm:px-6"
+        style={{ padding: "15px", marginBottom: "10px" }}
       >
-        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#641F1F] text-lg font-bold text-white shadow-sm">
-          {initials(user.fullName)}
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#641F1F] text-[17px] font-bold text-white shadow-sm">
+          {initials(form.fullName || user.fullName)}
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-[16px] font-bold leading-6 text-[#242638]">
-            {user.fullName}
+            {form.fullName.trim() || user.fullName}
           </p>
+
           <p className="mt-0.5 truncate text-[13px] leading-5 text-[#7B8496]">
-            {user.email}
+            {form.email.trim() || user.email}
           </p>
+
           <span className="mt-2 inline-flex rounded-full bg-[#EEE4E4] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#6B2B2B]">
             {ROLE_LABEL[user.role] || user.role}
           </span>
         </div>
       </div>
 
-      <p className={`${sectionCls} mb-5`} style={{ paddingBottom: "10px" }}>
+      {/* Profile information */}
+      <p className={`${sectionCls} mb-5`} style={{ marginBottom: "5px" }}>
         Profile Information
       </p>
 
-      {/* Full Name */}
-      <div className="mb-5" style={{ paddingBottom: "10px" }}>
-        <label className={labelCls} style={{ paddingBottom: "10px" }}>
+      <div className="mb-5" style={{ marginBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           Full Name <span className="text-red-500">*</span>
         </label>
+
         <input
           value={form.fullName}
-          onChange={(e) => setF("fullName", e.target.value)}
-          onBlur={() => touchF("fullName")}
+          onChange={(event) => setField("fullName", event.target.value)}
+          onBlur={() => touchField("fullName")}
           placeholder="Your full name"
           className={errors.fullName ? inputErrCls : inputCls}
-          style={{ padding: "5px" }}
         />
+
         {errors.fullName && (
           <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
             <FaExclamationCircle className="h-3 w-3" />
@@ -247,20 +286,20 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         )}
       </div>
 
-      {/* Email */}
       <div className="mb-5" style={{ marginBottom: "10px" }}>
-        <label className={labelCls} style={{ paddingBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           Email Address <span className="text-red-500">*</span>
         </label>
+
         <input
           type="email"
           value={form.email}
-          onChange={(e) => setF("email", e.target.value)}
-          onBlur={() => touchF("email")}
+          onChange={(event) => setField("email", event.target.value)}
+          onBlur={() => touchField("email")}
           placeholder="your@email.com"
           className={errors.email ? inputErrCls : inputCls}
-          style={{ padding: "5px" }}
         />
+
         {errors.email && (
           <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
             <FaExclamationCircle className="h-3 w-3" />
@@ -269,24 +308,26 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         )}
       </div>
 
-      {/* Department */}
       <div className="mb-7" style={{ marginBottom: "10px" }}>
-        <label className={labelCls} style={{ paddingBottom: "10px" }}>
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           Department <span className="text-red-500">*</span>
         </label>
+
         <select
           value={form.department}
-          onChange={(e) => setF("department", e.target.value)}
-          onBlur={() => touchF("department")}
+          onChange={(event) => setField("department", event.target.value)}
+          onBlur={() => touchField("department")}
           className={`${errors.department ? inputErrCls : inputCls} cursor-pointer`}
         >
           <option value="">Select department…</option>
-          {DEPARTMENTS.map((d) => (
-            <option key={d} value={d}>
-              {d}
+
+          {DEPARTMENTS.map((department) => (
+            <option key={department} value={department}>
+              {department}
             </option>
           ))}
         </select>
+
         {errors.department && (
           <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
             <FaExclamationCircle className="h-3 w-3" />
@@ -295,43 +336,48 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         )}
       </div>
 
+      {/* Password section */}
       <div className="mb-5" style={{ marginBottom: "10px" }}>
-        <p className={sectionCls} style={{ marginBottom: "10px" }}>
+        <p className={sectionCls} style={{ marginBottom: "5px" }}>
           Change Password
         </p>
+
         <p className="mt-2 text-[12px] leading-5 text-[#9AA3B4]">
           Leave both fields blank to keep your current password.
         </p>
       </div>
 
-      {/* New Password */}
-      <div className={form.newPassword ? "mb-5" : "mb-1"}>
-        <label className={labelCls} style={{ marginBottom: "10px" }}>
+      <div className="mb-5">
+        <label className={labelCls} style={{ marginBottom: "5px" }}>
           New Password
         </label>
+
         <div className="relative">
           <input
-            type={showPw ? "text" : "password"}
+            type={showNewPassword ? "text" : "password"}
             value={form.newPassword}
-            onChange={(e) => setF("newPassword", e.target.value)}
-            onBlur={() => touchF("newPassword")}
+            onChange={(event) => setField("newPassword", event.target.value)}
+            onBlur={() => touchField("newPassword")}
             placeholder="Min. 6 characters"
-            style={{ padding: "5px" }}
             className={`${errors.newPassword ? inputErrCls : inputCls} pr-12`}
           />
+
           <button
             type="button"
-            onClick={() => setShowPw((p) => !p)}
-            aria-label={showPw ? "Hide password" : "Show password"}
+            onClick={() => setShowNewPassword((current) => !current)}
+            aria-label={
+              showNewPassword ? "Hide new password" : "Show new password"
+            }
             className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#A4ACBC] transition-colors hover:bg-gray-100 hover:text-gray-600"
           >
-            {showPw ? (
+            {showNewPassword ? (
               <FaEyeSlash className="h-4 w-4" />
             ) : (
               <FaEye className="h-4 w-4" />
             )}
           </button>
         </div>
+
         {errors.newPassword && (
           <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
             <FaExclamationCircle className="h-3 w-3" />
@@ -340,18 +386,40 @@ export default function AccountPanel({ open, onClose }: AccountPanelProps) {
         )}
       </div>
 
-      {/* Confirm Password */}
       {form.newPassword && (
-        <div className="pb-1">
-          <label className={labelCls}>Confirm New Password</label>
-          <input
-            type={showPw ? "text" : "password"}
-            value={form.confirmPassword}
-            onChange={(e) => setF("confirmPassword", e.target.value)}
-            onBlur={() => touchF("confirmPassword")}
-            placeholder="Re-enter new password"
-            className={errors.confirmPassword ? inputErrCls : inputCls}
-          />
+        <div className="mb-1">
+          <label className={labelCls}>Confirm Password</label>
+
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              value={form.confirmPassword}
+              onChange={(event) =>
+                setField("confirmPassword", event.target.value)
+              }
+              onBlur={() => touchField("confirmPassword")}
+              placeholder="Re-enter new password"
+              className={`${errors.confirmPassword ? inputErrCls : inputCls} pr-12`}
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((current) => !current)}
+              aria-label={
+                showConfirmPassword
+                  ? "Hide confirm password"
+                  : "Show confirm password"
+              }
+              className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#A4ACBC] transition-colors hover:bg-gray-100 hover:text-gray-600"
+            >
+              {showConfirmPassword ? (
+                <FaEyeSlash className="h-4 w-4" />
+              ) : (
+                <FaEye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
+
           {errors.confirmPassword && (
             <p className="mt-1.5 flex items-center gap-1 text-[11px] text-red-500">
               <FaExclamationCircle className="h-3 w-3" />
