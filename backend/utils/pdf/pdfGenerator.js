@@ -1,76 +1,63 @@
 import PDFDocument from "pdfkit";
-
 import { REPORT } from "./constants.js";
-
-import { drawHeader } from "./reportLayout.js";
-
+import { drawReportHeader } from "./reportLayout.js";
 import { drawSummary } from "./summaryRenderer.js";
-
+import { drawInsights } from "./insightRenderer.js";
 import { drawTable } from "./tableRenderer.js";
-
 import { addFooter } from "./pageManager.js";
 
-/**
- * Generic PDF Generator
- */
 export const generatePdfReport = async ({
   res,
   title,
+  description,
   summary,
+  insights = [],
   headers,
   rows,
   filename,
+  tableTitle,
 }) => {
   const doc = new PDFDocument({
     size: "A4",
-
     layout: "landscape",
-
     margins: {
       top: REPORT.PAGE_MARGIN,
-      bottom: REPORT.PAGE_MARGIN,
+      bottom: 45,
       left: REPORT.PAGE_MARGIN,
       right: REPORT.PAGE_MARGIN,
     },
-
     bufferPages: true,
+    info: {
+      Title: title,
+      Author: REPORT.COMPANY_NAME,
+      Subject: description || title,
+      Creator: REPORT.SHORT_NAME,
+    },
   });
 
-  /*
-   * Download response
-   */
   res.setHeader("Content-Type", "application/pdf");
-
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-
   doc.pipe(res);
 
-  /*
-   * Header
-   */
-  drawHeader(doc, title);
+  let y = drawReportHeader(doc, { title, description });
+  y = drawSummary(doc, summary, y);
+  y = drawInsights(doc, insights, y);
 
-  /*
-   * Summary
-   */
-  drawSummary(doc, summary);
+  drawTable({
+    doc,
+    headers,
+    rows,
+    startY: y,
+    title: tableTitle,
+    onNewPage: (pdf) => drawReportHeader(pdf, { title, continuation: true }),
+  });
 
-  doc.moveDown(2);
-
-  /*
-   * Table
-   */
-  await drawTable(doc, headers, rows);
-
-  /*
-   * Footer for every page
-   */
   const range = doc.bufferedPageRange();
+  const totalPages = range.count;
 
-  for (let i = range.start; i < range.start + range.count; i++) {
+  for (let i = range.start; i < range.start + range.count; i += 1) {
     doc.switchToPage(i);
-
-    addFooter(doc, i + 1, range.count);
+    addFooter(doc, i - range.start + 1, totalPages);
   }
 
   doc.end();
