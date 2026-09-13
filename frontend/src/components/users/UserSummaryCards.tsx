@@ -9,67 +9,63 @@ interface UserSummaryCardsProps {
 
 export default function UserSummaryCards({
   stats,
-  loading = false,
+  loading,
 }: UserSummaryCardsProps) {
   const cards = [
     {
-      label: "Staffs",
+      key: "staff",
+      colorClass: "bg-blue-50 text-blue-700",
       value: stats.staff,
-      iconStyle: "bg-blue-50 text-blue-600",
+      label: "Staffs",
     },
     {
-      label: "Faculty Deans",
+      key: "deans",
+      colorClass: "bg-purple-50 text-purple-700",
       value: stats.deans,
-      iconStyle: "bg-purple-50 text-purple-600",
+      label: "Faculty Deans",
     },
     {
-      label: "Admins",
+      key: "admins",
+      colorClass: "bg-red-50 text-[#4C1D1D]",
       value: stats.admins,
-      iconStyle: "bg-red-50 text-[#4C1D1D]",
+      label: "Admins",
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-[104px] animate-pulse rounded-[20px] border border-slate-200 bg-white shadow-sm"
+          />
+        ))}
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="grid grid-cols-1 md:grid-cols-3 gap-5"
-      style={{ marginBottom: "20px" }}
-    >
+    <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
       {cards.map((card) => (
         <div
-          key={card.label}
-          className="
-            bg-white
-            border border-gray-200
-            rounded-2xl
-            shadow-sm
-            px-5 py-6
-            flex items-center
-            min-h-[102px]
-          "
-          style={{ padding: "15px" }}
+          key={card.key}
+          className="flex min-h-[104px] items-center gap-4 rounded-[20px] border border-slate-200/90 bg-white px-5 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.06)]"
         >
           <div
-            className={`
-              w-12 h-12
-              rounded-full
-              flex items-center justify-center
-              shrink-0
-              ${card.iconStyle}
-            `}
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${card.colorClass}`}
           >
-            <FaUsers className="w-5 h-5" />
+            <FaUsers className="h-4 w-4" />
           </div>
 
-          <div className="ml-4" style={{ margin: "15px" }}>
-            {loading ? (
-              <div className="w-8 h-7 bg-gray-100 rounded-md animate-pulse" />
-            ) : (
-              <p className="text-[28px] leading-none font-bold text-[#101426]">
-                {card.value}
-              </p>
-            )}
-
-            <p className="mt-2 text-sm text-gray-400">{card.label}</p>
+          <div className="min-w-0">
+            <p
+              className="text-[26px] font-bold leading-none text-[#131526]"
+              style={{ fontFamily: "Outfit, sans-serif" }}
+            >
+              {card.value}
+            </p>
+            <p className="mt-2 text-sm text-slate-400">{card.label}</p>
           </div>
         </div>
       ))}

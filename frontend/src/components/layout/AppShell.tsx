@@ -10,25 +10,32 @@ interface AppShellProps {
 }
 
 /**
- * Shared authenticated-page shell: sidebar + top navbar + a
- * scrollable, max-width-constrained content area. Every dashboard
- * page (Dashboard, Vehicles, ...) renders its content inside this.
+ * Shared authenticated-page shell.
+ * Keeps the page spacing and content width consistent with the dashboard mockup.
  */
 export default function AppShell({ title, subtitle, children }: AppShellProps) {
   return (
-    <div className="h-screen w-full flex overflow-hidden bg-[#F5F7FC]">
+    <div className="flex h-screen w-full overflow-hidden bg-[#F4F6FB]">
       <Sidebar />
 
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <TopNavbar title={title} subtitle={subtitle} />
 
         <main
           className="flex-1 overflow-y-auto overflow-x-hidden [scrollbar-gutter:stable]"
-          style={{
-            padding: "15px",
-          }}
+          style={{ backgroundColor: "#F4F6FB" }}
         >
-          <div className="p-8 space-y-7 max-w-[1600px] mx-auto">{children}</div>
+          <div
+            className="mx-auto w-full"
+            style={{
+              maxWidth: "1600px",
+              padding: "32px",
+            }}
+          >
+            <div className="flex flex-col" style={{ gap: "26px" }}>
+              {children}
+            </div>
+          </div>
         </main>
       </div>
     </div>

@@ -1,24 +1,24 @@
 import express from "express";
-import { param } from "express-validator";
+
+import { body, param } from "express-validator";
 
 import * as adminController from "../controllers/adminController.js";
 
 import authenticate from "../middleware/authMiddleware.js";
+
 import authorize from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
-
-//validation Rules
 
 const bookingIdValidation = [
   param("id").isUUID().withMessage("Invalid booking ID."),
 ];
 
-// Routes
-
 /**
+ * Existing:
  * GET /api/admin/bookings
- * Get all approved bookings
+ *
+ * Approved only.
  */
 router.get(
   "/bookings",
@@ -28,8 +28,20 @@ router.get(
 );
 
 /**
- * PATCH /api/admin/bookings/:id/confirm
- * Confirm booking
+ * New:
+ * GET /api/admin/bookings/all
+ *
+ * ALL bookings.
+ */
+router.get(
+  "/bookings/all",
+  authenticate,
+  authorize("ADMIN"),
+  adminController.getAllBookings,
+);
+
+/**
+ * Confirm booking.
  */
 router.patch(
   "/bookings/:id/confirm",
@@ -40,9 +52,7 @@ router.patch(
 );
 
 /**
- * PATCH /api/admin/bookings/:id/complete
- * Complete booking
- * ADMIN only
+ * Complete booking.
  */
 router.patch(
   "/bookings/:id/complete",
@@ -53,26 +63,30 @@ router.patch(
 );
 
 /**
- * GET /api/admin/vehicles
- * View all vehicles
- */
-router.get(
-  "/vehicles",
-  authenticate,
-  authorize("ADMIN"),
-  adminController.getAllVehicles,
-);
-
-/**
- * PATCH /api/admin/bookings/:id/cancel
- * Cancel booking
+ * Cancel booking.
  */
 router.patch(
   "/bookings/:id/cancel",
   authenticate,
   authorize("ADMIN"),
   bookingIdValidation,
+  body("reason")
+    .trim()
+    .notEmpty()
+    .withMessage("Cancellation reason is required.")
+    .isLength({ max: 500 })
+    .withMessage("Cancellation reason cannot exceed 500 characters."),
   adminController.cancelBooking,
+);
+
+/**
+ * Get all vehicles.
+ */
+router.get(
+  "/vehicles",
+  authenticate,
+  authorize("ADMIN"),
+  adminController.getAllVehicles,
 );
 
 export default router;

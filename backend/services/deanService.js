@@ -1,25 +1,18 @@
 import * as deanRepository from "../repositories/deanRepository.js";
+import * as notificationService from "./notificationService.js";
 import createError from "../utils/createError.js";
 
-/**
- * Get all pending bookings
- */
 export const getPendingBookings = async () => {
   return await deanRepository.getPendingBookings();
 };
 
-/**
- * Approve a booking
- */
 export const approveBooking = async (bookingId) => {
-  // Check booking exists
   const booking = await deanRepository.findBookingById(bookingId);
 
   if (!booking) {
     throw createError("Booking not found.", 404);
   }
 
-  // Only pending bookings can be approved
   if (booking.status !== "PENDING") {
     throw createError(
       `Only pending bookings can be approved. Current status: ${booking.status}.`,
@@ -27,8 +20,19 @@ export const approveBooking = async (bookingId) => {
     );
   }
 
-  // Approve booking
   const approvedBooking = await deanRepository.approveBooking(bookingId);
+
+  try {
+    await notificationService.createForUser({
+      userId: booking.user_id,
+      bookingId: booking.id,
+      type: "BOOKING_APPROVED",
+      title: "Booking approved by Dean",
+      message: `Your booking ${booking.booking_reference} has been approved by the Dean and is waiting for Admin confirmation.`,
+    });
+  } catch (notificationError) {
+    console.error("Approval notification delivery failed:", notificationError);
+  }
 
   return approvedBooking;
 };

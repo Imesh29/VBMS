@@ -47,11 +47,11 @@ export default function SlidePanel({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        style={{ padding: "20px" }}
+        style={{ padding: "15px" }}
       >
         <div
           className={`flex shrink-0 items-start justify-between border-b border-gray-100 px-6 py-5 ${headerClassName}`}
-          style={{ paddingBottom: "15px" }}
+          style={{ marginBottom: "10px" }}
         >
           <div className="min-w-0 pr-4">
             <h2
@@ -61,7 +61,12 @@ export default function SlidePanel({
               {title}
             </h2>
             {subtitle && (
-              <p className="mt-1 text-xs leading-5 text-gray-400">{subtitle}</p>
+              <p
+                className="mt-1 text-xs leading-5 text-gray-400"
+                style={{ marginBottom: "10px" }}
+              >
+                {subtitle}
+              </p>
             )}
           </div>
 

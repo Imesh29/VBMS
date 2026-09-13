@@ -1,34 +1,36 @@
 import { REPORT } from "./constants.js";
-import { drawHorizontalLine } from "./helpers.js";
 
-export const PAGE_BOTTOM = 520;
-
-/**
- * Add footer
- */
 export const addFooter = (doc, currentPage, totalPages) => {
-  const y = doc.page.height - 35;
+  const margin = REPORT.PAGE_MARGIN;
+  const oldBottom = doc.page.margins.bottom;
+  doc.page.margins.bottom = 0;
 
-  drawHorizontalLine(doc, y - 10);
+  const lineY = doc.page.height - 30;
+  const textY = doc.page.height - 22;
 
-  doc.fontSize(9).fillColor("#777777").text(REPORT.COMPANY_NAME, 40, y);
+  doc.save();
+  doc
+    .moveTo(margin, lineY)
+    .lineTo(doc.page.width - margin, lineY)
+    .strokeColor(REPORT.BORDER_COLOR)
+    .lineWidth(0.6)
+    .stroke();
 
-  doc.text(`Page ${currentPage} of ${totalPages}`, 0, y, {
+  doc
+    .fillColor(REPORT.TEXT_MUTED)
+    .font("Helvetica")
+    .fontSize(7.5)
+    .text(`${REPORT.SHORT_NAME} • Confidential internal report`, margin, textY, {
+      width: 260,
+      lineBreak: false,
+    });
+
+  doc.text(`Page ${currentPage} of ${totalPages}`, doc.page.width - margin - 100, textY, {
+    width: 100,
     align: "right",
+    lineBreak: false,
   });
-};
+  doc.restore();
 
-/**
- * Check page break
- */
-export const checkPageBreak = (doc, currentY, callback) => {
-  if (currentY >= PAGE_BOTTOM) {
-    doc.addPage();
-
-    callback();
-
-    return 80;
-  }
-
-  return currentY;
+  doc.page.margins.bottom = oldBottom;
 };

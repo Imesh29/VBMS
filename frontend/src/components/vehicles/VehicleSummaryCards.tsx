@@ -41,7 +41,7 @@ export default function VehicleSummaryCards({
   return (
     <div
       className="grid grid-cols-1 sm:grid-cols-3"
-      style={{ gap: "20px", marginBottom: "15px" }}
+      style={{ gap: "20px" }}
     >
       {CARD_CONFIG.map((card) => (
         <div

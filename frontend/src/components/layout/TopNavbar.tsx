@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaBell } from "react-icons/fa";
 
 import { useAuth } from "../../context/AuthContext";
 import AccountPanel from "../common/AccountPanel";
+import NotificationDropdown from "../notifications/NotificationDropdown";
+import {
+  getMyNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+} from "../../api/notificationApi";
+import type { NotificationItem } from "../../types/notification";
 
-/**
- * Generate user initials from the full name.
- *
- * Example:
- * "Imesh Daksitha" -> "ID"
- */
 function initials(name: string) {
   return name
     .split(" ")
@@ -19,46 +20,24 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-/**
- * Props used to customize the navbar title
- * depending on the current page.
- */
 interface TopNavbarProps {
   title?: string;
   subtitle?: string;
 }
 
-/**
- * Top navigation bar used across the protected application pages.
- *
- * Features:
- * - Dynamic page title and subtitle
- * - Notification button
- * - Logged-in user information from AuthContext
- * - Role-aware label
- * - Account panel access
- */
 export default function TopNavbar({
   title = "Dashboard",
   subtitle = "Overview of your vehicle booking system",
 }: TopNavbarProps) {
   const { user } = useAuth();
-
-  /**
-   * Controls the visibility of the account side panel.
-   */
   const [accountOpen, setAccountOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const notificationAreaRef = useRef<HTMLDivElement | null>(null);
 
-  /**
-   * Fallback user name in case authentication
-   * information has not been loaded yet.
-   */
   const displayName = user?.fullName || "User";
-
-  /**
-   * Convert backend role values into
-   * user-friendly labels.
-   */
   const roleLabel =
     user?.role === "ADMIN"
       ? "Admin"
@@ -66,202 +45,169 @@ export default function TopNavbar({
         ? "Faculty Dean"
         : "Staff";
 
+  const loadNotifications = useCallback(async (showLoading = false) => {
+    if (!user) return;
+
+    if (showLoading) setNotificationsLoading(true);
+
+    try {
+      const data = await getMyNotifications(20);
+      setNotifications(data.items);
+      setUnreadCount(data.unreadCount);
+    } catch (error) {
+      console.error("Unable to load notifications:", error);
+    } finally {
+      if (showLoading) setNotificationsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    void loadNotifications();
+
+    const interval = window.setInterval(() => {
+      void loadNotifications();
+    }, 30000);
+
+    const onFocus = () => void loadNotifications();
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [user, loadNotifications]);
+
+  useEffect(() => {
+    const onMouseDown = (event: MouseEvent) => {
+      if (
+        notificationAreaRef.current &&
+        !notificationAreaRef.current.contains(event.target as Node)
+      ) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onMouseDown);
+    return () => document.removeEventListener("mousedown", onMouseDown);
+  }, []);
+
+  const handleBellClick = async () => {
+    const nextOpen = !notificationsOpen;
+    setNotificationsOpen(nextOpen);
+    if (nextOpen) {
+      await loadNotifications(true);
+    }
+  };
+
+  const handleRead = async (id: string) => {
+    const target = notifications.find((item) => item.id === id);
+
+    if (target && !target.is_read) {
+      setNotifications((current) =>
+        current.map((item) =>
+          item.id === id ? { ...item, is_read: true } : item,
+        ),
+      );
+      setUnreadCount((count) => Math.max(0, count - 1));
+
+      try {
+        await markNotificationAsRead(id);
+      } catch (error) {
+        console.error("Unable to mark notification as read:", error);
+        await loadNotifications();
+      }
+    }
+  };
+
+  const handleReadAll = async () => {
+    setNotifications((current) =>
+      current.map((item) => ({ ...item, is_read: true })),
+    );
+    setUnreadCount(0);
+
+    try {
+      await markAllNotificationsAsRead();
+    } catch (error) {
+      console.error("Unable to mark notifications as read:", error);
+      await loadNotifications();
+    }
+  };
+
   return (
     <>
-      {/* =====================================================
-          TOP NAVIGATION BAR
-      ====================================================== */}
       <header
-        className="
-          flex
-          shrink-0
-          items-center
-          justify-between
-
-          border-b
-          border-black/[0.06]
-
-          bg-white
-
-          px-6
-          py-5
-
-          md:px-8
-        "
-        style={{
-          padding: "13px",
-        }}
+        className="bg-white border-b border-black/[0.06] px-6 md:px-8 py-5 flex items-center justify-between shrink-0"
+        style={{ padding: "13px" }}
       >
-        {/* ===================================================
-            PAGE TITLE
-        ==================================================== */}
         <div className="min-w-0">
           <h1
-            className="
-              truncate
-
-              text-xl
-              font-bold
-
-              text-[#1C1C2E]
-
-              md:text-2xl
-            "
-            style={{
-              fontFamily: "Outfit, sans-serif",
-            }}
+            className="text-xl md:text-2xl font-bold text-[#1C1C2E] truncate"
+            style={{ fontFamily: "Outfit, sans-serif" }}
           >
             {title}
           </h1>
-
-          <p
-            className="
-              mt-0.5
-              truncate
-
-              text-sm
-              text-gray-400
-            "
-          >
-            {subtitle}
-          </p>
+          <p className="text-sm text-gray-400 mt-0.5 truncate">{subtitle}</p>
         </div>
 
-        {/* ===================================================
-            RIGHT SIDE ACTIONS
-        ==================================================== */}
-        <div className="flex shrink-0 items-center gap-4">
-          {/* =================================================
-              NOTIFICATION BUTTON
-          ================================================== */}
-          <button
-            type="button"
-            title="Notifications"
-            aria-label="Notifications"
-            className="
-              relative
-
-              flex
-              h-11
-              w-11
-              items-center
-              justify-center
-
-              rounded-xl
-
-              bg-gray-50
-              text-gray-500
-
-              transition-colors
-
-              hover:bg-gray-100
-            "
-          >
-            <FaBell className="h-4 w-4" />
-
-            {/* Notification indicator */}
-            <span
-              className="
-                absolute
-                right-3
-                top-2.5
-
-                h-2
-                w-2
-
-                rounded-full
-
-                bg-[#4C1D1D]
-
-                ring-2
-                ring-white
-              "
-            />
-          </button>
-
-          {/* =================================================
-              USER ACCOUNT BUTTON
-          ================================================== */}
-          <button
-            type="button"
-            onClick={() => setAccountOpen(true)}
-            title="My Account"
-            className="
-              flex
-              items-center
-              gap-3
-
-              border-l
-              border-gray-100
-
-              pl-4
-
-              transition-opacity
-
-              hover:opacity-80
-            "
-          >
-            {/* User avatar */}
-            <div
-              className="
-                flex
-                h-11
-                w-11
-                shrink-0
-                items-center
-                justify-center
-
-                rounded-full
-
-                bg-[#4C1D1D]
-
-                text-sm
-                font-bold
-                text-white
-              "
+        <div className="flex items-center gap-4 shrink-0">
+          <div className="relative" ref={notificationAreaRef}>
+            <button
+              type="button"
+              onClick={() => void handleBellClick()}
+              className="relative w-11 h-11 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-colors"
+              title="Notifications"
             >
+              <FaBell className="w-4 h-4" />
+
+              {unreadCount > 0 && (
+                <span
+                  className="absolute flex items-center justify-center rounded-full bg-[#5B1E1D] text-white ring-2 ring-white"
+                  style={{
+                    top: "2px",
+                    right: "1px",
+                    minWidth: "18px",
+                    height: "18px",
+                    padding: "0 4px",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                  }}
+                >
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notificationsOpen && (
+              <NotificationDropdown
+                notifications={notifications}
+                unreadCount={unreadCount}
+                loading={notificationsLoading}
+                onRead={(id) => void handleRead(id)}
+                onReadAll={() => void handleReadAll()}
+                onClose={() => setNotificationsOpen(false)}
+              />
+            )}
+          </div>
+
+          <button
+            onClick={() => setAccountOpen(true)}
+            className="flex items-center gap-3 pl-4 border-l border-gray-100 hover:opacity-80 transition-opacity"
+            title="My Account"
+          >
+            <div className="w-11 h-11 rounded-full bg-[#4C1D1D] flex items-center justify-center text-white text-sm font-bold shrink-0">
               {initials(displayName)}
             </div>
 
-            {/* User information */}
             <div
-              className="
-                hidden
-                min-w-0
-                text-left
-
-                sm:block
-              "
-              style={{
-                marginRight: "8px",
-              }}
+              className="hidden sm:block min-w-0 text-left"
+              style={{ marginRight: "8px" }}
             >
-              <p
-                className="
-                  max-w-[160px]
-                  truncate
-
-                  text-sm
-                  font-semibold
-                  leading-tight
-
-                  text-[#1C1C2E]
-                "
-              >
+              <p className="text-sm font-semibold text-[#1C1C2E] leading-tight truncate max-w-[160px]">
                 {displayName}
               </p>
-
-              <p
-                className="
-                  mt-0.5
-                  truncate
-
-                  text-xs
-                  leading-tight
-
-                  text-gray-400
-                "
-              >
+              <p className="text-xs text-gray-400 leading-tight mt-0.5 truncate">
                 {roleLabel}
               </p>
             </div>
@@ -269,13 +215,7 @@ export default function TopNavbar({
         </div>
       </header>
 
-      {/* =====================================================
-          ACCOUNT PANEL
-      ====================================================== */}
-      <AccountPanel
-        open={accountOpen}
-        onClose={() => setAccountOpen(false)}
-      />
+      <AccountPanel open={accountOpen} onClose={() => setAccountOpen(false)} />
     </>
   );
 }
