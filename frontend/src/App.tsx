@@ -1,17 +1,13 @@
-import {
-  BrowserRouter,
-  Navigate,
-  Route,
-  Routes,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Dashboard from "./pages/DashboardPage";
 import Login from "./pages/LoginPage";
 import Register from "./pages/RegisterPage";
-import Reports from "./pages/ReportsPage";
-import Users from "./pages/UsersPage";
 import Vehicles from "./pages/VehiclesPage";
-import BookingFormPage from "./pages/BookingFormPage";
+import Users from "./pages/UsersPage";
+import Reports from "./pages/ReportsPage";
+import BookingListPage from "./pages/BookingListPage";
+import NewBookingPage from "./pages/NewBookingPage";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
@@ -19,19 +15,13 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public: Login */}
-        <Route
-          path="/"
-          element={<Login />}
-        />
+        {/* Login */}
+        <Route path="/" element={<Login />} />
 
-        {/* Public: Registration */}
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+        {/* Registration */}
+        <Route path="/register" element={<Register />} />
 
-        {/* Protected: Dashboard */}
+        {/* Protected Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -41,27 +31,37 @@ function App() {
           }
         />
 
-        {/* Protected: Bookings */}
+        {/* Booking list: role-aware data and actions */}
         <Route
           path="/bookings"
           element={
-            <ProtectedRoute>
-              <BookingFormPage />
+            <ProtectedRoute roles={["USER", "DEAN", "ADMIN"]}>
+              <BookingListPage />
             </ProtectedRoute>
           }
         />
 
-        {/* Protected: Add Booking */}
+        {/* New booking: Staff/User only */}
         <Route
           path="/add-booking"
           element={
-            <ProtectedRoute>
-              <BookingFormPage />
+            <ProtectedRoute roles={["USER"]}>
+              <NewBookingPage />
             </ProtectedRoute>
           }
         />
 
-        {/* Protected: Fleet Management - Admin only */}
+        {/* Edit pending booking: Staff/User only */}
+        <Route
+          path="/bookings/:id/edit"
+          element={
+            <ProtectedRoute roles={["USER"]}>
+              <NewBookingPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Protected Fleet Management (Admin only) */}
         <Route
           path="/vehicles"
           element={
@@ -71,7 +71,7 @@ function App() {
           }
         />
 
-        {/* Protected: User Management - Admin only */}
+        {/* Protected User Management (Admin only) */}
         <Route
           path="/users"
           element={
@@ -81,7 +81,7 @@ function App() {
           }
         />
 
-        {/* Protected: Reports - Admin and Dean */}
+        {/* Protected Reports (Admin + Dean) */}
         <Route
           path="/reports"
           element={
@@ -92,10 +92,7 @@ function App() {
         />
 
         {/* Unknown routes */}
-        <Route
-          path="*"
-          element={<Navigate to="/" replace />}
-        />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
