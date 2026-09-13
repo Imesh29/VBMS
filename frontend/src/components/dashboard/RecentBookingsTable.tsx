@@ -5,40 +5,43 @@ const STATUS_STYLES: Record<
   { bg: string; text: string; border: string; dot: string }
 > = {
   Pending: {
-    bg: "bg-amber-50",
-    text: "text-amber-700",
-    border: "border-amber-200",
-    dot: "bg-amber-400",
+    bg: "#FFFBEB",
+    text: "#B45309",
+    border: "#FDE68A",
+    dot: "#F59E0B",
   },
   Approved: {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
-    dot: "bg-blue-400",
+    bg: "#EFF6FF",
+    text: "#1D4ED8",
+    border: "#BFDBFE",
+    dot: "#60A5FA",
   },
   Confirmed: {
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    border: "border-emerald-200",
-    dot: "bg-emerald-500",
+    bg: "#ECFDF5",
+    text: "#047857",
+    border: "#A7F3D0",
+    dot: "#10B981",
   },
   Completed: {
-    bg: "bg-slate-50",
-    text: "text-slate-600",
-    border: "border-slate-200",
-    dot: "bg-slate-400",
+    bg: "#F8FAFC",
+    text: "#475467",
+    border: "#E2E8F0",
+    dot: "#94A3B8",
   },
   Cancelled: {
-    bg: "bg-red-50",
-    text: "text-red-700",
-    border: "border-red-200",
-    dot: "bg-red-400",
+    bg: "#FFF1F2",
+    text: "#DC2626",
+    border: "#FECDD3",
+    dot: "#FB7185",
   },
 };
 
-function initials(name: string) {
+function initials(name?: string | null) {
+  if (!name?.trim()) return "?";
+
   return name
-    .split(" ")
+    .trim()
+    .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0])
@@ -51,9 +54,31 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border ${s.bg} ${s.text} ${s.border}`}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        height: "32px",
+        padding: "0 13px",
+        borderRadius: "999px",
+        backgroundColor: s.bg,
+        color: s.text,
+        border: `1px solid ${s.border}`,
+        fontSize: "12px",
+        fontWeight: 600,
+        whiteSpace: "nowrap",
+      }}
     >
-      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      <span
+        style={{
+          width: "7px",
+          height: "7px",
+          borderRadius: "50%",
+          backgroundColor: s.dot,
+          flexShrink: 0,
+        }}
+      />
+
       {status}
     </span>
   );
@@ -64,124 +89,286 @@ interface RecentBookingsTableProps {
   bookings: NormalizedBooking[];
   loading?: boolean;
   error?: string | null;
+  onViewAll?: () => void;
 }
 
 export default function RecentBookingsTable({
   title = "Recent Bookings",
   bookings,
-  loading,
-  error,
+  loading = false,
+  error = null,
+  onViewAll,
 }: RecentBookingsTableProps) {
   return (
     <div
-      className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden"
       style={{
-        marginTop: "30px",
-        padding: "20px",
+        width: "100%",
+        overflow: "hidden",
+        borderRadius: "22px",
+        border: "1px solid #E7EAF0",
+        backgroundColor: "#FFFFFF",
+        boxShadow: "0 3px 12px rgba(15, 23, 42, 0.05)",
       }}
     >
-      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-50">
+      {/* Header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          minHeight: "68px",
+          padding: "0 26px",
+          borderBottom: "1px solid #EEF0F4",
+        }}
+      >
         <h3
-          className="text-lg font-bold text-[#1C1C2E]"
-          style={{ fontFamily: "Outfit, sans-serif" }}
+          style={{
+            margin: 0,
+            fontSize: "17px",
+            fontWeight: 700,
+            color: "#171A2B",
+          }}
         >
           {title}
         </h3>
+
+        {onViewAll && (
+          <button
+            type="button"
+            onClick={onViewAll}
+            style={{
+              border: "none",
+              background: "transparent",
+              padding: 0,
+              fontSize: "12px",
+              fontWeight: 700,
+              color: "#5B1E1D",
+              cursor: "pointer",
+            }}
+          >
+            View all →
+          </button>
+        )}
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50/60">
+      {/* Loading / error / empty */}
+      {loading ? (
+        <div
+          style={{
+            padding: "52px 24px",
+            textAlign: "center",
+            fontSize: "14px",
+            color: "#98A2B3",
+          }}
+        >
+          Loading bookings…
+        </div>
+      ) : error ? (
+        <div
+          style={{
+            padding: "52px 24px",
+            textAlign: "center",
+            fontSize: "14px",
+            color: "#EF4444",
+          }}
+        >
+          {error}
+        </div>
+      ) : bookings.length === 0 ? (
+        <div
+          style={{
+            padding: "52px 24px",
+            textAlign: "center",
+            fontSize: "14px",
+            color: "#98A2B3",
+          }}
+        >
+          No bookings to show.
+        </div>
+      ) : (
+        <div style={{ width: "100%", overflowX: "auto" }}>
+          <div style={{ minWidth: "980px" }}>
+            {/* Column header */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.25fr 1.4fr 1.5fr 0.9fr 0.8fr",
+                alignItems: "center",
+                minHeight: "50px",
+                padding: "0 26px",
+                backgroundColor: "#FBFCFD",
+                borderBottom: "1px solid #EEF0F4",
+                columnGap: "28px",
+              }}
+            >
               {[
-                "Booking No.",
-                "Requester",
-                "Destination",
-                "Date",
-                "Status",
-              ].map((h) => (
-                <th
-                  key={h}
-                  className="text-left px-6 py-3.5 text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap"
+                "BOOKING NO.",
+                "REQUESTER",
+                "DESTINATION",
+                "DATE",
+                "STATUS",
+              ].map((heading) => (
+                <div
+                  key={heading}
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    letterSpacing: "0.06em",
+                    color: "#98A2B3",
+                  }}
                 >
-                  {h}
-                </th>
+                  {heading}
+                </div>
               ))}
-            </tr>
-          </thead>
+            </div>
 
-          <tbody className="divide-y divide-gray-50">
-            {loading ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
-                  Loading bookings…
-                </td>
-              </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-sm text-red-500">
-                  {error}
-                </td>
-              </tr>
-            ) : bookings.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-10 text-center text-sm text-gray-400">
-                  No bookings to show.
-                </td>
-              </tr>
-            ) : (
-              bookings.map((booking) => (
-                <tr
-                  key={booking.id}
-                  className="hover:bg-gray-50/40 transition-colors"
+            {/* Rows */}
+            {bookings.map((booking, index) => (
+              <div
+                key={booking.id}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1.25fr 1.4fr 1.5fr 0.9fr 0.8fr",
+                  alignItems: "center",
+                  minHeight: "88px",
+                  padding: "0 26px",
+                  columnGap: "28px",
+                  backgroundColor: "#FFFFFF",
+                  borderTop: index === 0 ? "none" : "1px solid #F1F3F6",
+                  transition: "background-color 0.2s ease",
+                }}
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.backgroundColor = "#FCFCFD";
+                }}
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.backgroundColor = "#FFFFFF";
+                }}
+              >
+                {/* Booking */}
+                <div style={{ minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "13px",
+                      lineHeight: "20px",
+                      fontWeight: 700,
+                      color: "#5B1E1D",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {booking.bookingReference}
+                  </div>
+
+                  <div
+                    style={{
+                      marginTop: "7px",
+                      fontSize: "11px",
+                      lineHeight: "17px",
+                      color: "#A0A8B8",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {booking.vehicle || "—"}
+                  </div>
+                </div>
+
+                {/* Requester */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "13px",
+                    minWidth: 0,
+                  }}
                 >
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-bold text-[#4C1D1D]">
-                      {booking.bookingReference}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {booking.vehicle}
-                    </p>
-                  </td>
+                  <div
+                    style={{
+                      width: "42px",
+                      height: "42px",
+                      borderRadius: "50%",
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "#5B1E1D",
+                      color: "#FFFFFF",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {initials(booking.requester)}
+                  </div>
 
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[#4C1D1D] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                        {initials(booking.requester)}
-                      </div>
-
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-[#1C1C2E] truncate">
-                          {booking.requester}
-                        </p>
-                        <p className="text-xs text-gray-400 truncate">
-                          {booking.department}
-                        </p>
-                      </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div
+                      style={{
+                        fontSize: "13px",
+                        lineHeight: "20px",
+                        fontWeight: 700,
+                        color: "#1F2434",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {booking.requester || "Unknown User"}
                     </div>
-                  </td>
 
-                  <td className="px-6 py-4 max-w-[200px]">
-                    <p className="text-sm text-gray-700 truncate">
-                      {booking.destination}
-                    </p>
-                  </td>
+                    <div
+                      style={{
+                        marginTop: "5px",
+                        fontSize: "11px",
+                        lineHeight: "17px",
+                        color: "#98A2B3",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {booking.department || "—"}
+                    </div>
+                  </div>
+                </div>
 
-                  <td className="px-6 py-4">
-                    <p className="text-sm text-gray-600 whitespace-nowrap">
-                      {booking.date}
-                    </p>
-                  </td>
+                {/* Destination */}
+                <div
+                  style={{
+                    minWidth: 0,
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    color: "#475467",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {booking.destination || "—"}
+                </div>
 
-                  <td className="px-6 py-4">
-                    <StatusBadge status={booking.status} />
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                {/* Date */}
+                <div
+                  style={{
+                    fontSize: "13px",
+                    lineHeight: "20px",
+                    color: "#475467",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {booking.date || "—"}
+                </div>
+
+                {/* Status */}
+                <div>
+                  <StatusBadge status={booking.status} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

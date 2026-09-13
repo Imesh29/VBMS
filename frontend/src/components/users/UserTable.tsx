@@ -200,10 +200,7 @@ export default function UserTable({
                   >
                     {/* User */}
                     <td style={{ padding: "18px 24px" }}>
-                      <div
-                        className="flex items-center"
-                        style={{ gap: "12px" }}
-                      >
+                      <div className="flex items-center" style={{ gap: "12px" }}>
                         <div
                           className="flex shrink-0 items-center justify-center rounded-full font-bold text-white"
                           style={{
@@ -294,9 +291,7 @@ export default function UserTable({
                           padding: "6px 12px",
                           fontSize: "13px",
                           color: user.is_active ? "#07865D" : "#667085",
-                          backgroundColor: user.is_active
-                            ? "#EAFBF4"
-                            : "#F2F4F7",
+                          backgroundColor: user.is_active ? "#EAFBF4" : "#F2F4F7",
                           border: user.is_active
                             ? "1px solid #D1F4E3"
                             : "1px solid #E4E7EC",

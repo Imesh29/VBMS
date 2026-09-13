@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaCalendarCheck,
+  FaPlusCircle,
   FaCar,
   FaUsers,
   FaFileAlt,
@@ -34,7 +35,14 @@ const NAV_ITEMS: {
     id: "bookings",
     label: "Bookings",
     icon: <FaCalendarCheck className="text-lg" />,
-    path: null,
+    path: "/bookings",
+  },
+  {
+    id: "add-booking",
+    label: "Add Booking",
+    icon: <FaPlusCircle className="text-lg" />,
+    path: "/add-booking",
+    roles: ["USER"],
   },
   {
     id: "vehicles",
