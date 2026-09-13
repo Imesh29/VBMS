@@ -29,37 +29,43 @@ type RoleDashboardData =
 
 interface UseDashboardDataResult {
   loading: boolean;
+
   error: string | null;
+
   data: RoleDashboardData;
+
   statusBreakdown: ReturnType<typeof getStatusBreakdown>;
+
   recentBookings: NormalizedBooking[];
+
   recentBookingsTitle: string;
+
   totalBookings: number;
+
   refetch: () => void;
 }
 
-/**
- * Fetches everything the dashboard page needs, based on the
- * logged-in user's role (USER / DEAN / ADMIN), and normalizes
- * it into a shape the presentational components can consume.
- */
 export function useDashboardData(): UseDashboardDataResult {
   const { user } = useAuth();
+
   const role = user?.role;
 
   const [data, setData] = useState<RoleDashboardData>(null);
-  const [recentBookings, setRecentBookings] = useState<NormalizedBooking[]>(
-    [],
-  );
+
+  const [recentBookings, setRecentBookings] = useState<NormalizedBooking[]>([]);
+
   const [loading, setLoading] = useState(true);
+
   const [error, setError] = useState<string | null>(null);
+
   const [reloadToken, setReloadToken] = useState(0);
 
-  const refetch = useCallback(() => setReloadToken((n) => n + 1), []);
+  const refetch = useCallback(() => setReloadToken((value) => value + 1), []);
 
   useEffect(() => {
     if (!role) {
       setLoading(false);
+
       return;
     }
 
@@ -67,51 +73,106 @@ export function useDashboardData(): UseDashboardDataResult {
 
     async function load() {
       setLoading(true);
+
       setError(null);
 
       try {
+        /**
+         * ADMIN
+         */
         if (role === "ADMIN") {
-          const [stats, bookings] = await Promise.all([
-            dashboardApi.getAdminDashboard(),
-            adminApi.getApprovedBookings(),
-          ]);
+          const stats = await dashboardApi.getAdminDashboard();
 
-          if (cancelled) return;
-
-          setData(stats);
-          setRecentBookings(
-            (bookings as any[]).slice(0, 5).map(mapStaffBooking),
-          );
-        } else if (role === "DEAN") {
-          const [stats, bookings] = await Promise.all([
-            dashboardApi.getDeanDashboard(),
-            deanApi.getPendingBookings(),
-          ]);
-
-          if (cancelled) return;
+          if (cancelled) {
+            return;
+          }
 
           setData(stats);
-          setRecentBookings(
-            (bookings as any[]).slice(0, 5).map(mapStaffBooking),
-          );
-        } else {
-          const [stats, bookings] = await Promise.all([
-            dashboardApi.getUserDashboard(),
-            bookingApi.getBookings({
+
+          try {
+            const bookings = await adminApi.getAllBookings({
+              page: 1,
               limit: 5,
               sort: "created_at",
               order: "DESC",
-            }),
-          ]);
+            });
 
-          if (cancelled) return;
+            if (!cancelled) {
+              setRecentBookings(bookings.items.map(mapStaffBooking));
+            }
+          } catch (bookingError) {
+            console.error(
+              "Unable to load recent Admin bookings:",
+              bookingError,
+            );
+
+            if (!cancelled) {
+              setRecentBookings([]);
+            }
+          }
+
+          return;
+        }
+
+        /**
+         * DEAN
+         */
+        if (role === "DEAN") {
+          const stats = await dashboardApi.getDeanDashboard();
+
+          if (cancelled) {
+            return;
+          }
 
           setData(stats);
 
-          const items = bookings?.data?.items ?? [];
-          setRecentBookings(
-            items.map((item: any) => mapMyBooking(item, user)),
-          );
+          try {
+            const bookings = await deanApi.getPendingBookings();
+
+            if (!cancelled) {
+              setRecentBookings(bookings.slice(0, 5).map(mapStaffBooking));
+            }
+          } catch (bookingError) {
+            console.error("Unable to load Dean bookings:", bookingError);
+
+            if (!cancelled) {
+              setRecentBookings([]);
+            }
+          }
+
+          return;
+        }
+
+        /**
+         * USER
+         */
+        const stats = await dashboardApi.getUserDashboard();
+
+        if (cancelled) {
+          return;
+        }
+
+        setData(stats);
+
+        try {
+          const bookings = await bookingApi.getMyBookings({
+            page: 1,
+            limit: 5,
+            sort: "created_at",
+            order: "DESC",
+          });
+
+          if (!cancelled) {
+            setRecentBookings(
+              bookings.items.map((item) => mapMyBooking(item, user)),
+            );
+          }
+        } catch (bookingError) {
+          console.error("Unable to load user recent bookings:", bookingError);
+
+          if (!cancelled) {
+            setRecentBookings([]);
+          }
         }
       } catch (err: any) {
         if (!cancelled) {
@@ -121,11 +182,13 @@ export function useDashboardData(): UseDashboardDataResult {
           );
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
-    load();
+    void load();
 
     return () => {
       cancelled = true;
@@ -139,12 +202,14 @@ export function useDashboardData(): UseDashboardDataResult {
 
   const totalBookings =
     data && "total_bookings" in data
-      ? toNumber((data as UserDashboardData | AdminDashboardData).total_bookings)
-      : statusBreakdown.reduce((sum, s) => sum + s.value, 0);
+      ? toNumber(
+          (data as UserDashboardData | AdminDashboardData).total_bookings,
+        )
+      : statusBreakdown.reduce((sum, status) => sum + status.value, 0);
 
   const recentBookingsTitle =
     role === "ADMIN"
-      ? "Recent Approved Bookings"
+      ? "Recent Bookings"
       : role === "DEAN"
         ? "Pending Approvals"
         : "Recent Bookings";

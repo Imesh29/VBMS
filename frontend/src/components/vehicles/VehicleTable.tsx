@@ -242,43 +242,19 @@ export default function VehicleTable({
             <tbody>
               {loading ? (
                 <tr>
-                  <td
-                    colSpan={10}
-                    style={{
-                      padding: "44px 24px",
-                      textAlign: "center",
-                      color: "#98A2B3",
-                      fontSize: "14px",
-                    }}
-                  >
+                  <td colSpan={10} style={{ padding: "44px 24px", textAlign: "center", color: "#98A2B3", fontSize: "14px" }}>
                     Loading vehicles…
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td
-                    colSpan={10}
-                    style={{
-                      padding: "44px 24px",
-                      textAlign: "center",
-                      color: "#EF4444",
-                      fontSize: "14px",
-                    }}
-                  >
+                  <td colSpan={10} style={{ padding: "44px 24px", textAlign: "center", color: "#EF4444", fontSize: "14px" }}>
                     {error}
                   </td>
                 </tr>
               ) : vehicles.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={10}
-                    style={{
-                      padding: "44px 24px",
-                      textAlign: "center",
-                      color: "#98A2B3",
-                      fontSize: "14px",
-                    }}
-                  >
+                  <td colSpan={10} style={{ padding: "44px 24px", textAlign: "center", color: "#98A2B3", fontSize: "14px" }}>
                     No vehicles match your search.
                   </td>
                 </tr>
@@ -290,10 +266,7 @@ export default function VehicleTable({
                     style={{ borderTop: "1px solid #F1F3F6" }}
                   >
                     <td style={{ padding: "18px 24px" }}>
-                      <div
-                        className="flex items-center"
-                        style={{ gap: "12px" }}
-                      >
+                      <div className="flex items-center" style={{ gap: "12px" }}>
                         <div
                           className="flex shrink-0 items-center justify-center rounded-full"
                           style={{
@@ -302,31 +275,15 @@ export default function VehicleTable({
                             backgroundColor: "#F7F1F1",
                           }}
                         >
-                          <FaCar
-                            style={{
-                              width: "15px",
-                              height: "15px",
-                              color: "#5A1E1E",
-                            }}
-                          />
+                          <FaCar style={{ width: "15px", height: "15px", color: "#5A1E1E" }} />
                         </div>
-                        <span
-                          className="whitespace-nowrap font-bold"
-                          style={{ fontSize: "14px", color: "#1F2434" }}
-                        >
+                        <span className="whitespace-nowrap font-bold" style={{ fontSize: "14px", color: "#1F2434" }}>
                           {vehicle.vehicle_name}
                         </span>
                       </div>
                     </td>
 
-                    <td
-                      className="whitespace-nowrap"
-                      style={{
-                        padding: "18px 24px",
-                        fontSize: "13px",
-                        color: "#667085",
-                      }}
-                    >
+                    <td className="whitespace-nowrap" style={{ padding: "18px 24px", fontSize: "13px", color: "#667085" }}>
                       {vehicle.vehicle_type}
                     </td>
 
@@ -345,47 +302,19 @@ export default function VehicleTable({
                       </span>
                     </td>
 
-                    <td
-                      className="whitespace-nowrap"
-                      style={{
-                        padding: "18px 24px",
-                        fontSize: "13px",
-                        color: "#667085",
-                      }}
-                    >
+                    <td className="whitespace-nowrap" style={{ padding: "18px 24px", fontSize: "13px", color: "#667085" }}>
                       {vehicle.capacity} pax
                     </td>
 
-                    <td
-                      className="whitespace-nowrap"
-                      style={{
-                        padding: "18px 24px",
-                        fontSize: "13px",
-                        color: "#667085",
-                      }}
-                    >
+                    <td className="whitespace-nowrap" style={{ padding: "18px 24px", fontSize: "13px", color: "#667085" }}>
                       {vehicle.fuel_type}
                     </td>
 
-                    <td
-                      className="whitespace-nowrap"
-                      style={{
-                        padding: "18px 24px",
-                        fontSize: "13px",
-                        color: "#667085",
-                      }}
-                    >
+                    <td className="whitespace-nowrap" style={{ padding: "18px 24px", fontSize: "13px", color: "#667085" }}>
                       {vehicle.driver_name}
                     </td>
 
-                    <td
-                      className="whitespace-nowrap"
-                      style={{
-                        padding: "18px 24px",
-                        fontSize: "13px",
-                        color: "#7C8799",
-                      }}
-                    >
+                    <td className="whitespace-nowrap" style={{ padding: "18px 24px", fontSize: "13px", color: "#7C8799" }}>
                       {formatVehicleDate(vehicle.last_service_date)}
                     </td>
 
@@ -397,12 +326,7 @@ export default function VehicleTable({
                       <select
                         value={vehicle.status}
                         disabled={updatingId === vehicle.id}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            vehicle,
-                            e.target.value as VehicleStatus,
-                          )
-                        }
+                        onChange={(e) => handleStatusChange(vehicle, e.target.value as VehicleStatus)}
                         className="outline-none disabled:opacity-50"
                         style={{
                           minWidth: "132px",
@@ -423,24 +347,14 @@ export default function VehicleTable({
 
                     <td style={{ padding: "18px 24px" }}>
                       {deleteId === vehicle.id ? (
-                        <div
-                          className="flex items-center"
-                          style={{ gap: "6px" }}
-                        >
-                          <span style={{ fontSize: "10px", color: "#667085" }}>
-                            Delete?
-                          </span>
+                        <div className="flex items-center" style={{ gap: "6px" }}>
+                          <span style={{ fontSize: "10px", color: "#667085" }}>Delete?</span>
                           <button
                             type="button"
                             onClick={() => handleConfirmDelete(vehicle)}
                             disabled={deletingId === vehicle.id}
                             className="font-bold text-white disabled:opacity-60"
-                            style={{
-                              padding: "5px 8px",
-                              borderRadius: "8px",
-                              backgroundColor: "#DC2626",
-                              fontSize: "10px",
-                            }}
+                            style={{ padding: "5px 8px", borderRadius: "8px", backgroundColor: "#DC2626", fontSize: "10px" }}
                           >
                             {deletingId === vehicle.id ? "…" : "Yes"}
                           </button>
@@ -448,34 +362,19 @@ export default function VehicleTable({
                             type="button"
                             onClick={() => setDeleteId(null)}
                             className="font-semibold"
-                            style={{
-                              padding: "5px 8px",
-                              borderRadius: "8px",
-                              backgroundColor: "#F2F4F7",
-                              color: "#667085",
-                              fontSize: "10px",
-                            }}
+                            style={{ padding: "5px 8px", borderRadius: "8px", backgroundColor: "#F2F4F7", color: "#667085", fontSize: "10px" }}
                           >
                             No
                           </button>
                         </div>
                       ) : (
-                        <div
-                          className="flex items-center"
-                          style={{ gap: "8px" }}
-                        >
+                        <div className="flex items-center" style={{ gap: "8px" }}>
                           <button
                             type="button"
                             onClick={() => onEditVehicle(vehicle)}
                             title="Edit"
                             className="flex items-center justify-center transition-colors"
-                            style={{
-                              width: "34px",
-                              height: "34px",
-                              borderRadius: "12px",
-                              backgroundColor: "#EFF6FF",
-                              color: "#2563EB",
-                            }}
+                            style={{ width: "34px", height: "34px", borderRadius: "12px", backgroundColor: "#EFF6FF", color: "#2563EB" }}
                           >
                             <FaPen style={{ width: "12px", height: "12px" }} />
                           </button>
@@ -484,17 +383,9 @@ export default function VehicleTable({
                             onClick={() => setDeleteId(vehicle.id)}
                             title="Delete"
                             className="flex items-center justify-center transition-colors"
-                            style={{
-                              width: "34px",
-                              height: "34px",
-                              borderRadius: "12px",
-                              backgroundColor: "#FFF1F2",
-                              color: "#F04438",
-                            }}
+                            style={{ width: "34px", height: "34px", borderRadius: "12px", backgroundColor: "#FFF1F2", color: "#F04438" }}
                           >
-                            <FaTrash
-                              style={{ width: "12px", height: "12px" }}
-                            />
+                            <FaTrash style={{ width: "12px", height: "12px" }} />
                           </button>
                         </div>
                       )}
